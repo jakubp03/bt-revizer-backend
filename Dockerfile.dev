@@ -1,0 +1,28 @@
+FROM eclipse-temurin:21-jdk-jammy
+
+WORKDIR /app
+
+ENV SPRING_DEVTOOLS_RESTART_POLL_INTERVAL=2s
+ENV SPRING_DEVTOOLS_RESTART_QUIET_PERIOD=1s
+
+# Create .m2 directory with proper permissions
+RUN mkdir -p /root/.m2 && chmod -R 755 /root/.m2
+
+# Copy Maven wrapper
+COPY --chmod=0755 mvnw mvnw
+COPY .mvn/ .mvn/
+
+# Copy pom.xml first for dependency caching
+COPY pom.xml .
+
+# Download dependencies
+RUN ./mvnw dependency:go-offline -DskipTests
+
+# Copy source code (this will be overridden by volume mount in dev)
+COPY . .
+
+# Expose port
+EXPOSE 8080
+
+# Run in development mode with DevTools
+CMD ["./mvnw", "spring-boot:run", "-Dspring.devtools.restart.enabled=true"]
