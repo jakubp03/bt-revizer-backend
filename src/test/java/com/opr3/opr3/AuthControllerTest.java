@@ -88,7 +88,7 @@ public class AuthControllerTest {
         @Test
         void shouldAuthenticateUserSuccessfully() {
                 // setup
-                url = "http://localhost:" + port + "/api/auth/authenticate";
+                url = "http://localhost:" + port + "/api/v1/auth/authenticate";
 
                 // TODO: refactor, this block in each method should go into setup method (code
                 // duplication)
@@ -109,7 +109,7 @@ public class AuthControllerTest {
         @Test
         void shouldReturnUnauthorizedForInvalidCredentials() {
                 // setup
-                String url = "http://localhost:" + port + "/api/auth/authenticate";
+                String url = "http://localhost:" + port + "/api/v1/auth/authenticate";
 
                 // it needs diffrent httpclient in order for the failed request to not retry
                 // that way it can be read
@@ -135,7 +135,7 @@ public class AuthControllerTest {
         void shouldHandleDifferentTokenTypes(Function<User, String> tokenGenerator, HttpStatus expectedStatus,
                         String expectedMessage) {
                 // setup
-                String url = "http://localhost:" + port + "/api/auth/validateToken";
+                String url = "http://localhost:" + port + "/api/v1/auth/validateToken";
                 User user = userRepository.findUserByEmail(userOneEmail)
                                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
@@ -187,7 +187,7 @@ public class AuthControllerTest {
                         Function<User, String> refreshTokenGenerator, HttpStatus expectedStatus, String expectedMessage,
                         List<String> expectedCookie) {
                 // setup
-                String url = "http://localhost:" + port + "/api/auth/refresh";
+                String url = "http://localhost:" + port + "/api/v1/auth/refresh";
 
                 TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
 

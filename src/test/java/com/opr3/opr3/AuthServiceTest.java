@@ -79,7 +79,7 @@ class AuthServiceTest {
         mockRefreshCookie = ResponseCookie.from("mockRefreshToken", mockRefreshToken)
                 .httpOnly(true)
                 .secure(true)
-                .path("/api/auth/refresh")
+                .path("/api/v1/auth/refresh")
                 .maxAge(100000)
                 .sameSite("Strict")
                 .build();

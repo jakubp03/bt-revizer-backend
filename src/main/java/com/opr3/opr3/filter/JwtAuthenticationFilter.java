@@ -103,7 +103,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // if refresh header is null while sending request to /refresh endpoint this if
         // block catches it
-        if (request.getServletPath().contains("/api/auth/refresh") && refreshToken == null) {
+        if (request.getServletPath().contains("/api/v1/auth/refresh") && refreshToken == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("missing refresh token");
             log.warn("[{}] missing refresh token", HttpServletResponse.SC_UNAUTHORIZED);
@@ -128,7 +128,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            if (!request.getServletPath().contains("/api/auth/refresh")) {
+            if (!request.getServletPath().contains("/api/v1/auth/refresh")) {
                 // Only validate JWT signature and expiration, no database check
                 if (validationResultAccess.isValid()) {
                     setAuthentication(request, userDetails);
@@ -147,7 +147,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //
         if (refreshToken != null) {
 
-            if (!request.getServletPath().contains("/api/auth/refresh")) {
+            if (!request.getServletPath().contains("/api/v1/auth/refresh")) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("wrong endpoint");
                 log.warn("[{}] wrong endpoint", HttpServletResponse.SC_BAD_REQUEST);

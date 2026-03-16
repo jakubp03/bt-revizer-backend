@@ -69,7 +69,7 @@ public class JwtServiceTest {
         assertNotNull(refreshCookie);
         assertTrue(refreshCookie.isHttpOnly());
         assertTrue(refreshCookie.isSecure());
-        assertEquals("/api/auth/refresh", refreshCookie.getPath());
+        assertEquals("/api/v1/auth/refresh", refreshCookie.getPath());
         assertEquals(604800000, refreshCookie.getMaxAge().toMillis());
         assertEquals("Strict", refreshCookie.getSameSite());
     }

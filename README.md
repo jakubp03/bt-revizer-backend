@@ -44,14 +44,14 @@ This is a Spring Boot application for project and task management with JWT-based
 
 ## API Endpoints
 
-### Authentication (`/api/auth`)
+### Authentication (`/api/v1/auth`)
 - `POST /authenticate` - Login with email and password
 - `POST /register` - Register a new user
 - `POST /refresh` - Refresh access token using refresh token cookie
 - `POST /logout` - Logout and revoke tokens
 - `GET /validateToken` - Validate current access token
 
-### Projects (`/api/projects`)
+### Projects (`/api/v1/projects`)
 - `GET /` - Get all projects for authenticated user
 - `POST /` - Create a new project
 - `GET /{projectId}` - Get project by ID
@@ -59,7 +59,7 @@ This is a Spring Boot application for project and task management with JWT-based
 - `PATCH /{projectId}/archive` - Archive a project
 - `POST /{projectId}/users` - Add user to project by email
 
-### Tasks (`/api/projects/{projectId}/tasks`)
+### Tasks (`/api/v1/projects/{projectId}/tasks`)
 - `POST /` - Create a new task in project
 - `GET /{taskId}` - Get task by ID
 - `GET /` - Get all tasks for project
@@ -115,7 +115,7 @@ The application uses a global exception handler ([`GlobalExceptionHandler`](src/
   "status": 400,
   "message": "Error description",
   "timestamp": "2024-01-01T12:00:00",
-  "path": "/api/endpoint"
+   "path": "/api/v1/endpoint"
 }
 ```
 
