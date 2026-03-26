@@ -1,8 +1,13 @@
 package com.opr3.opr3.entity.attempt;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.opr3.opr3.entity.question.Question;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -38,8 +43,11 @@ public class AttemptAnswer {
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 
-    @Column(name = "selected_option_ids", columnDefinition = "TEXT", nullable = true)
-    private String selectedOptionIds;
+    @ElementCollection
+    @CollectionTable(name = "attempt_answer_selected_option", joinColumns = @JoinColumn(name = "attempt_answer_id"))
+    @Column(name = "selected_option_id", nullable = false)
+    @Builder.Default
+    private List<String> selectedOptionIds = new ArrayList<>();
 
     @Column(name = "text_answer", columnDefinition = "TEXT", nullable = true)
     private String textAnswer;

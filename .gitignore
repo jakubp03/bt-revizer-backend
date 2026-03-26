@@ -8,6 +8,7 @@ application-dev.properties
 !.env.example
 !application-dev.properties.example
 /logs
+/docs
 
 ### STS ###
 .apt_generated

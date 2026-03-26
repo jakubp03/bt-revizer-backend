@@ -62,21 +62,21 @@ public class Question {
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<QuestionChoiceOption> choiceOptions = new ArrayList<>();
+    private List<OptionChoice> choiceOptions = new ArrayList<>();
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<QuestionMatchPair> matchPairs = new ArrayList<>();
+    private List<OptionMatchPair> matchPairs = new ArrayList<>();
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<QuestionOrderItem> orderItems = new ArrayList<>();
+    private List<OptionOrderItem> orderItems = new ArrayList<>();
 
     @OneToOne(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-    private QuestionTextConfig textConfig;
+    private TextAnswerConfig textConfig;
 
     @OneToOne(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-    private QuestionFlashcard flashcardConfig;
+    private OptionFlashcard flashcardConfig;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

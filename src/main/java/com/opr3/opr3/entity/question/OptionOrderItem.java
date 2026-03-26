@@ -1,17 +1,13 @@
 package com.opr3.opr3.entity.question;
 
-import com.opr3.opr3.enums.TextReviewType;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,21 +21,20 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "question_text_config")
-public class QuestionTextConfig {
+@Table(name = "question_order_item")
+public class OptionOrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "question_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 
-    @Column(name = "correct_answer")
-    private String correctAnswer;
+    @Column(name = "text", nullable = false)
+    private String text;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "review", nullable = false)
-    private TextReviewType review;
+    @Column(name = "correct_position", nullable = false)
+    private int correctPosition;
 }

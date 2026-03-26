@@ -16,5 +16,9 @@ public interface TestRepository extends JpaRepository<Test, Long> {
 
     Optional<Test> findByIdAndAuthorUid(Long id, String authorUid);
 
+    Optional<Test> findByShareToken(String shareToken);
+
+    List<Test> findByIsPublicTrueOrderByCreatedAtDesc();
+
     List<Test> findDistinctByCategoriesIn(List<Category> categories);
 }

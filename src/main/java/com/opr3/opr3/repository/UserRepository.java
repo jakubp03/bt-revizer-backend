@@ -1,5 +1,6 @@
 package com.opr3.opr3.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +23,9 @@ public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findUserByEmail(@Param("email") String email);
 
     Optional<User> findUserByUid(@Param("uid") String uid);
+
+    List<User> findByIsAnonymousTrueAndExpiresAtBefore(LocalDateTime expiresBefore);
+
+    Optional<User> findByUidAndIsAnonymousTrue(String uid);
+
 }

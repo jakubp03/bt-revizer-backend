@@ -22,7 +22,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "question_flashcard")
-public class QuestionFlashcard {
+public class OptionFlashcard {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

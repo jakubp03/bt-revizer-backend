@@ -4,10 +4,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.opr3.opr3.entity.attempt.TestAttempt;
 import com.opr3.opr3.entity.question.Question;
+import com.opr3.opr3.enums.TestGradingMethod;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -66,6 +70,9 @@ public class Test {
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @Column(name = "grading_method", nullable = false)
+    private TestGradingMethod gradingMethod;
+
     @ManyToMany
     @JoinTable(name = "test_category", joinColumns = @JoinColumn(name = "test_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     @Builder.Default
@@ -78,4 +85,9 @@ public class Test {
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<TestAttempt> attempts = new ArrayList<>();
+
+    public Map<Long, Question> getIdQuestionMap() {
+        return this.getQuestions().stream()
+                .collect(Collectors.toMap(Question::getId, Function.identity()));
+    }
 }

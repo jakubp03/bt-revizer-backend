@@ -1,6 +1,7 @@
 package com.opr3.opr3.exception;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +81,26 @@ public class GlobalExceptionHandler {
                                 .build();
 
                 return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
+
+        /**
+         * Handles NoSuchElementException
+         * HTTP Status: 404 NOT_FOUND
+         */
+        @ExceptionHandler(NoSuchElementException.class)
+        public ResponseEntity<ErrorResponse> handleNoSuchElementException(
+                        NoSuchElementException ex, WebRequest request) {
+
+                log.warn("[404] No such element: {}", ex.getMessage());
+
+                ErrorResponse error = ErrorResponse.builder()
+                                .status(HttpStatus.NOT_FOUND.value())
+                                .message(ex.getMessage())
+                                .timestamp(LocalDateTime.now())
+                                .path(getRequestPath(request))
+                                .build();
+
+                return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
 
         /**

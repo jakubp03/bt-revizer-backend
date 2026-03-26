@@ -22,7 +22,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "question_choice_option")
-public class QuestionChoiceOption {
+public class OptionChoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

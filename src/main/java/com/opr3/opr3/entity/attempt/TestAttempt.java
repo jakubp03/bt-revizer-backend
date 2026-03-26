@@ -64,4 +64,8 @@ public class TestAttempt {
     @OneToMany(mappedBy = "attempt", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<AttemptAnswer> answers = new ArrayList<>();
+
+    public double getScorePercentage() {
+        return ((this.getScore() / this.getMaxScore()) * 100);
+    }
 }
