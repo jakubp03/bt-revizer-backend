@@ -3,6 +3,7 @@ package com.opr3.opr3.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -82,7 +83,7 @@ public class TestService {
             attempt.getAnswers().add(attemptAnswer);
         }
 
-        // 5. Grade the test (stub for now)
+        // 5. Grade the test
         double scorePercentage = testGradingService.gradeTest(attempt);
 
         // 6. Save the attempt
@@ -191,5 +192,10 @@ public class TestService {
                 }
             }
         }
+    }
+
+    public List<Test> tempMethod() {
+        User user = authUtilService.getAuthenticatedUser();
+        return testRepository.findByAuthorUidOrderByCreatedAtDesc(user.getUid());
     }
 }
