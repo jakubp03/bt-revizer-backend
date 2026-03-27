@@ -32,9 +32,6 @@ public class OptionFlashcard {
     @JoinColumn(name = "question_id", nullable = false, unique = true)
     private Question question;
 
-    @Column(name = "front_text", nullable = false)
-    private String frontText;
-
     @Column(name = "back_text", nullable = false)
     private String backText;
 
