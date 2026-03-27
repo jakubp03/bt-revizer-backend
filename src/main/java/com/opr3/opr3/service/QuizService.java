@@ -14,51 +14,51 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.opr3.opr3.dto.AnswerSubmission;
-import com.opr3.opr3.dto.SubmitTestRequest;
-import com.opr3.opr3.dto.TestResultResponse;
-import com.opr3.opr3.entity.Test;
+import com.opr3.opr3.dto.QuizResultResponse;
+import com.opr3.opr3.dto.SubmitQuizRequest;
+import com.opr3.opr3.entity.Quiz;
 import com.opr3.opr3.entity.User;
 import com.opr3.opr3.entity.attempt.AttemptAnswer;
-import com.opr3.opr3.entity.attempt.TestAttempt;
+import com.opr3.opr3.entity.attempt.QuizAttempt;
 import com.opr3.opr3.entity.question.Question;
 import com.opr3.opr3.enums.QuestionType;
 import com.opr3.opr3.exception.InvalidRequestException;
 import com.opr3.opr3.exception.ResourceNotFoundException;
-import com.opr3.opr3.repository.TestRepository;
-import com.opr3.opr3.repository.attempt.TestAttemptRepository;
+import com.opr3.opr3.repository.QuizRepository;
+import com.opr3.opr3.repository.attempt.QuizAttemptRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class TestService {
+public class QuizService {
 
-    private static final Logger log = LoggerFactory.getLogger(TestService.class);
+    private static final Logger log = LoggerFactory.getLogger(QuizService.class);
 
-    private final TestRepository testRepository;
-    private final TestAttemptRepository testAttemptRepository;
-    private final TestGradingService testGradingService;
+    private final QuizRepository quizRepository;
+    private final QuizAttemptRepository quizAttemptRepository;
+    private final QuizGradingService quizGradingService;
     private final AuthUtilService authUtilService;
 
     @Transactional
-    public TestResultResponse processTest(SubmitTestRequest request) {
+    public QuizResultResponse processQuiz(SubmitQuizRequest request) {
         User user = authUtilService.getAuthenticatedUser();
 
-        // 1. Validate the submitted test
-        Test test = validateTest(request);
+        // 1. Validate the submitted quiz
+        Quiz quiz = validateQuiz(request);
 
         // 2. Get previous attempt score BEFORE saving the new one
-        Optional<TestAttempt> previousAttempt = testAttemptRepository
-                .findTopByTestIdAndUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(
-                        test.getId(), user.getUid());
+        Optional<QuizAttempt> previousAttempt = quizAttemptRepository
+                .findTopByQuizIdAndUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(
+                        quiz.getId(), user.getUid());
 
         // 3. Build the attempt entity
-        int maxScore = test.getQuestions().stream()
+        int maxScore = quiz.getQuestions().stream()
                 .mapToInt(Question::getPoints)
                 .sum();
 
-        TestAttempt attempt = TestAttempt.builder()
-                .test(test)
+        QuizAttempt attempt = QuizAttempt.builder()
+                .quiz(quiz)
                 .user(user)
                 .submittedAt(LocalDateTime.now())
                 .maxScore(maxScore)
@@ -66,7 +66,7 @@ public class TestService {
                 .build();
 
         // 4. Build AttemptAnswer entities from submitted answers
-        Map<Long, Question> questionMap = test.getIdQuestionMap();
+        Map<Long, Question> questionMap = quiz.getIdQuestionMap();
 
         for (AnswerSubmission answerSubmission : request.getAnswers()) {
             Question question = questionMap.get(answerSubmission.getQuestionId());
@@ -83,23 +83,23 @@ public class TestService {
             attempt.getAnswers().add(attemptAnswer);
         }
 
-        // 5. Grade the test
-        double scorePercentage = testGradingService.gradeTest(attempt);
+        // 5. Grade the quiz
+        double scorePercentage = quizGradingService.gradeQuiz(attempt);
 
         // 6. Save the attempt
-        testAttemptRepository.save(attempt);
+        quizAttemptRepository.save(attempt);
 
-        // 7. Compute average score across ALL attempts of this test
-        Double averageScore = testAttemptRepository.findAverageScorePercentageByTestId(test.getId());
+        // 7. Compute average score across ALL attempts of this quiz
+        Double averageScore = quizAttemptRepository.findAverageScorePercentageByQuizId(quiz.getId());
 
         // 8. Compute previous attempt score percentage
         Double previousScorePercentage = previousAttempt.get().getScorePercentage();
 
-        log.info("Test submitted: testId={}, attemptId={}, score={}%, previous={}%, avg={}%",
-                test.getId(), attempt.getId(), scorePercentage,
+        log.info("Quiz submitted: quizId={}, attemptId={}, score={}%, previous={}%, avg={}%",
+                quiz.getId(), attempt.getId(), scorePercentage,
                 previousScorePercentage, averageScore);
 
-        return TestResultResponse.builder()
+        return QuizResultResponse.builder()
                 .attemptId(attempt.getId())
                 .scorePercentage(scorePercentage)
                 .previousAttemptScorePercentage(previousScorePercentage)
@@ -107,20 +107,20 @@ public class TestService {
                 .build();
     }
 
-    private Test validateTest(SubmitTestRequest request) {
-        if (request.getTestId() == null) {
-            throw new InvalidRequestException("Test ID is required");
+    private Quiz validateQuiz(SubmitQuizRequest request) {
+        if (request.getQuizId() == null) {
+            throw new InvalidRequestException("Quiz ID is required");
         }
 
-        Test test = testRepository.findById(request.getTestId())
+        Quiz quiz = quizRepository.findById(request.getQuizId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Test not found with ID: " + request.getTestId()));
+                        "Quiz not found with ID: " + request.getQuizId()));
 
         if (request.getAnswers() == null) {
             throw new InvalidRequestException("Answers list cannot be null");
         }
 
-        Map<Long, Question> questionMap = test.getIdQuestionMap();
+        Map<Long, Question> questionMap = quiz.getIdQuestionMap();
 
         Set<Long> seen = new HashSet<>();
         for (AnswerSubmission answer : request.getAnswers()) {
@@ -130,7 +130,7 @@ public class TestService {
 
             if (!questionMap.containsKey(answer.getQuestionId())) {
                 throw new InvalidRequestException(
-                        "Question ID " + answer.getQuestionId() + " does not belong to this test");
+                        "Question ID " + answer.getQuestionId() + " does not belong to this quiz");
             }
 
             if (!seen.add(answer.getQuestionId())) {
@@ -141,7 +141,7 @@ public class TestService {
             validateAnswerStructure(answer, questionMap.get(answer.getQuestionId()));
         }
 
-        return test;
+        return quiz;
     }
 
     private void validateAnswerStructure(AnswerSubmission answer, Question question) {
@@ -194,8 +194,8 @@ public class TestService {
         }
     }
 
-    public List<Test> tempMethod() {
+    public List<Quiz> tempMethod() {
         User user = authUtilService.getAuthenticatedUser();
-        return testRepository.findByAuthorUidOrderByCreatedAtDesc(user.getUid());
+        return quizRepository.findByAuthorUidOrderByCreatedAtDesc(user.getUid());
     }
 }

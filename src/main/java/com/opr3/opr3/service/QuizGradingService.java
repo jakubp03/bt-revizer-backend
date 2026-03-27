@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.opr3.opr3.entity.attempt.AttemptAnswer;
-import com.opr3.opr3.entity.attempt.TestAttempt;
+import com.opr3.opr3.entity.attempt.QuizAttempt;
 import com.opr3.opr3.entity.question.OptionChoice;
 import com.opr3.opr3.entity.question.OptionOrderItem;
 import com.opr3.opr3.entity.question.Question;
@@ -19,16 +19,16 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class TestGradingService {
+public class QuizGradingService {
 
     /**
-     * Grades the test attempt by evaluating each answer against the correct
+     * Grades the quiz attempt by evaluating each answer against the correct
      * answers.
      * Sets the score on the attempt and returns the score percentage.
      *
      * @return score percentage (0.0 - 100.0)
      */
-    public double gradeTest(TestAttempt attempt) {
+    public double gradeQuiz(QuizAttempt attempt) {
         double totalScore = 0;
 
         for (AttemptAnswer answer : attempt.getAnswers()) {

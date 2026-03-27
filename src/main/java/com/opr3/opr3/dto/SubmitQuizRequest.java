@@ -1,5 +1,7 @@
 package com.opr3.opr3.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,13 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestResultResponse {
+public class SubmitQuizRequest {
 
-    private Long attemptId;
+    private Long quizId;
 
-    private double scorePercentage;
+    private List<AnswerSubmission> answers;
 
-    private Double previousAttemptScorePercentage;
-
-    private double averageScorePercentage;
+    private Integer timeSpent;
 }

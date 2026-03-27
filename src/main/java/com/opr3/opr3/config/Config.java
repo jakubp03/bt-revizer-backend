@@ -23,7 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.opr3.opr3.entity.Category;
-import com.opr3.opr3.entity.Test;
+import com.opr3.opr3.entity.Quiz;
 import com.opr3.opr3.entity.User;
 import com.opr3.opr3.entity.question.OptionChoice;
 import com.opr3.opr3.entity.question.OptionFlashcard;
@@ -32,10 +32,10 @@ import com.opr3.opr3.entity.question.OptionOrderItem;
 import com.opr3.opr3.entity.question.Question;
 import com.opr3.opr3.entity.question.TextAnswerConfig;
 import com.opr3.opr3.enums.QuestionType;
-import com.opr3.opr3.enums.TestGradingMethod;
+import com.opr3.opr3.enums.QuizGradingMethod;
 import com.opr3.opr3.enums.TextReviewType;
 import com.opr3.opr3.repository.CategoryRepository;
-import com.opr3.opr3.repository.TestRepository;
+import com.opr3.opr3.repository.QuizRepository;
 import com.opr3.opr3.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -51,20 +51,20 @@ public class Config {
         @Value("${app.docker-profile}")
         private String activeDockerProfile;
         private final UserRepository userRepository;
-        private final TestRepository testRepository;
+        private final QuizRepository quizRepository;
         private final CategoryRepository categoryRepository;
 
         @Bean
         CommandLineRunner commandLineRunner(ApplicationContext ctx) {
                 return args -> {
-                        initializeMinimalTestData();
+                        initializeMinimalQuizData();
                         // userRepository.findUserByEmail("test1@email.com")
-                        // .ifPresent(this::initializeMockTestData);
+                        // .ifPresent(this::initializeMockQuizData);
                 };
         }
 
         @Transactional
-        public void initializeMinimalTestData() {
+        public void initializeMinimalQuizData() {
                 if (activeDockerProfile.equals("docker_dev") || activeSpringProfile.equals("dev")) {
 
                         Optional<User> testUserOneOptional = userRepository.findUserByEmail("test1@email.com");
@@ -87,17 +87,17 @@ public class Config {
         }
 
         @Transactional
-        public void initializeMockTestData(User author) {
-                boolean alreadyExists = testRepository.findByAuthorUidOrderByCreatedAtDesc(author.getUid())
-                                .stream().anyMatch(t -> "Mock Grading Test".equals(t.getTitle()));
+        public void initializeMockQuizData(User author) {
+                boolean alreadyExists = quizRepository.findByAuthorUidOrderByCreatedAtDesc(author.getUid())
+                                .stream().anyMatch(t -> "Mock Grading Quiz".equals(t.getTitle()));
                 if (alreadyExists) {
-                        log.info("Mock grading test already exists, skipping");
+                        log.info("Mock grading quiz already exists, skipping");
                         return;
                 }
 
                 Category category = categoryRepository.save(Category.builder()
                                 .user(author)
-                                .name("Mock Test Category")
+                                .name("Mock Quiz Category")
                                 .description("Category for grading logic testing")
                                 .color("#6366F1")
                                 .build());
@@ -204,19 +204,19 @@ public class Config {
 
                 List<Question> questions = new ArrayList<>(List.of(q1, q2, q3, q4, q5, q6, q7));
 
-                Test test = Test.builder()
+                Quiz quiz = Quiz.builder()
                                 .author(author)
-                                .title("Mock Grading Test")
+                                .title("Mock Grading Quiz")
                                 .description("One question of every type — use this to test grading logic.")
-                                .gradingMethod(TestGradingMethod.OnePointPerAnswer)
+                                .gradingMethod(QuizGradingMethod.OnePointPerAnswer)
                                 .categories(Set.of(category))
                                 .questions(questions)
                                 .build();
 
-                questions.forEach(q -> q.setTest(test));
+                questions.forEach(q -> q.setQuiz(quiz));
 
-                testRepository.save(test);
-                log.info("Mock grading test created (7 questions, 11 total points)");
+                quizRepository.save(quiz);
+                log.info("Mock grading quiz created (7 questions, 11 total points)");
         }
 
         @Bean

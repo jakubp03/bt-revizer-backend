@@ -47,5 +47,5 @@ public class Category {
 
     @ManyToMany(mappedBy = "categories")
     @Builder.Default
-    private Set<Test> tests = new HashSet<>();
+    private Set<Quiz> quizzes = new HashSet<>();
 }

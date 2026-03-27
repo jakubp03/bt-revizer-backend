@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.opr3.opr3.entity.attempt.TestAttempt;
+import com.opr3.opr3.entity.attempt.QuizAttempt;
 import com.opr3.opr3.entity.question.Question;
-import com.opr3.opr3.enums.TestGradingMethod;
+import com.opr3.opr3.enums.QuizGradingMethod;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -38,8 +38,8 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "test")
-public class Test {
+@Table(name = "quiz")
+public class Quiz {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,20 +71,20 @@ public class Test {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @Column(name = "grading_method", nullable = false)
-    private TestGradingMethod gradingMethod;
+    private QuizGradingMethod gradingMethod;
 
     @ManyToMany
-    @JoinTable(name = "test_category", joinColumns = @JoinColumn(name = "test_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @JoinTable(name = "quiz_category", joinColumns = @JoinColumn(name = "quiz_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     @Builder.Default
     private Set<Category> categories = new HashSet<>();
 
-    @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Question> questions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<TestAttempt> attempts = new ArrayList<>();
+    private List<QuizAttempt> attempts = new ArrayList<>();
 
     public Map<Long, Question> getIdQuestionMap() {
         return this.getQuestions().stream()

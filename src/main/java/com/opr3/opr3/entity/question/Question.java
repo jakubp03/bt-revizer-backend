@@ -3,7 +3,7 @@ package com.opr3.opr3.entity.question;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opr3.opr3.entity.Test;
+import com.opr3.opr3.entity.Quiz;
 import com.opr3.opr3.entity.attempt.AttemptAnswer;
 import com.opr3.opr3.enums.QuestionType;
 
@@ -41,8 +41,8 @@ public class Question {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "test_id", nullable = false)
-    private Test test;
+    @JoinColumn(name = "quiz_id", nullable = false)
+    private Quiz quiz;
 
     @Column(name = "question_order", nullable = false)
     private int questionOrder;

@@ -37,7 +37,7 @@ public class AttemptAnswer {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "attempt_id", nullable = false)
-    private TestAttempt attempt;
+    private QuizAttempt attempt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "question_id", nullable = false)

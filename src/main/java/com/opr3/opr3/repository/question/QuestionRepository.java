@@ -12,9 +12,9 @@ import com.opr3.opr3.enums.QuestionType;
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
-    List<Question> findByTestIdOrderByQuestionOrderAsc(Long testId);
+    List<Question> findByQuizIdOrderByQuestionOrderAsc(Long quizId);
 
-    Optional<Question> findByIdAndTestAuthorUid(Long questionId, String authorUid);
+    Optional<Question> findByIdAndQuizAuthorUid(Long questionId, String authorUid);
 
-    List<Question> findByTypeAndTestId(QuestionType type, Long testId);
+    List<Question> findByTypeAndQuizId(QuestionType type, Long quizId);
 }

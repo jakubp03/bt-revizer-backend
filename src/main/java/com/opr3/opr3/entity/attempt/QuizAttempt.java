@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opr3.opr3.entity.Test;
+import com.opr3.opr3.entity.Quiz;
 import com.opr3.opr3.entity.User;
 
 import jakarta.persistence.CascadeType;
@@ -30,16 +30,16 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "test_attempt")
-public class TestAttempt {
+@Table(name = "quiz_attempt")
+public class QuizAttempt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "test_id", nullable = false)
-    private Test test;
+    @JoinColumn(name = "quiz_id", nullable = false)
+    private Quiz quiz;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_uid")

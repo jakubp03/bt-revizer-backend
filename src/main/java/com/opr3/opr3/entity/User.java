@@ -8,7 +8,7 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.opr3.opr3.entity.attempt.TestAttempt;
+import com.opr3.opr3.entity.attempt.QuizAttempt;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,13 +44,13 @@ public class User implements UserDetails {
     private String email;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Test> tests = new ArrayList<>();
+    private List<Quiz> quizzes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TestAttempt> attempts = new ArrayList<>();
+    private List<QuizAttempt> attempts = new ArrayList<>();
 
     public User(String name, String password, String email) {
         this.name = name;
