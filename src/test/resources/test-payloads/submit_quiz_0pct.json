@@ -1,0 +1,60 @@
+{
+    "quizId": 1,
+    "timeSpent": 30,
+    "answers": [
+        {
+            "questionId": 1,
+            "selectedOptionIds": [
+                "2"
+            ],
+            "textAnswer": null
+        },
+        {
+            "questionId": 2,
+            "selectedOptionIds": [
+                "7"
+            ],
+            "textAnswer": null
+        },
+        {
+            "questionId": 3,
+            "selectedOptionIds": [
+                "10"
+            ],
+            "textAnswer": null
+        },
+        {
+            "questionId": 4,
+            "selectedOptionIds": [
+                "false"
+            ],
+            "textAnswer": "I don't know"
+        },
+        {
+            "questionId": 5,
+            "selectedOptionIds": [
+                "1:2",
+                "2:3",
+                "3:1"
+            ],
+            "textAnswer": null
+        },
+        {
+            "questionId": 6,
+            "selectedOptionIds": [
+                "4",
+                "3",
+                "2",
+                "1"
+            ],
+            "textAnswer": null
+        },
+        {
+            "questionId": 7,
+            "selectedOptionIds": [
+                "false"
+            ],
+            "textAnswer": null
+        }
+    ]
+}

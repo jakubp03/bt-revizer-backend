@@ -1,0 +1,62 @@
+{
+    "quizId": 1,
+    "timeSpent": 90,
+    "answers": [
+        {
+            "questionId": 1,
+            "selectedOptionIds": [
+                "1"
+            ],
+            "textAnswer": null
+        },
+        {
+            "questionId": 2,
+            "selectedOptionIds": [
+                "5",
+                "6",
+                "8"
+            ],
+            "textAnswer": null
+        },
+        {
+            "questionId": 3,
+            "selectedOptionIds": [
+                "9"
+            ],
+            "textAnswer": null
+        },
+        {
+            "questionId": 4,
+            "selectedOptionIds": [
+                "true"
+            ],
+            "textAnswer": "HyperText Transfer Protocol"
+        },
+        {
+            "questionId": 5,
+            "selectedOptionIds": [
+                "1:1",
+                "2:2",
+                "3:3"
+            ],
+            "textAnswer": null
+        },
+        {
+            "questionId": 6,
+            "selectedOptionIds": [
+                "1",
+                "2",
+                "3",
+                "4"
+            ],
+            "textAnswer": null
+        },
+        {
+            "questionId": 7,
+            "selectedOptionIds": [
+                "true"
+            ],
+            "textAnswer": null
+        }
+    ]
+}
