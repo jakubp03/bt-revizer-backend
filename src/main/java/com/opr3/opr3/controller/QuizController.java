@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.opr3.opr3.dto.QuizResponse;
 import com.opr3.opr3.dto.QuizResultResponse;
 import com.opr3.opr3.dto.SubmitQuizRequest;
-import com.opr3.opr3.entity.Quiz;
 import com.opr3.opr3.service.QuizService;
 
 import lombok.RequiredArgsConstructor;
@@ -29,14 +29,15 @@ public class QuizController {
 
     @PostMapping("/submitQuiz")
     public ResponseEntity<QuizResultResponse> submitQuiz(@RequestBody SubmitQuizRequest request) {
-        log.info("submitting Quiz {}", request.getQuizId());
 
         QuizResultResponse result = quizService.processQuiz(request);
+        log.info("[200] submitting Quiz {}", request.getQuizId());
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/allQuizes")
-    public List<Quiz> getAllQuizzesTemp() {
+    @GetMapping("/allQuizzes")
+    public List<QuizResponse> getAllQuizzesTemp() {
+        log.info("[200] returning all user quizzes");
         return quizService.tempMethod();
     }
 

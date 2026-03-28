@@ -138,7 +138,7 @@ public class QuizGradingService {
         int points = 0;
         for (int i = 0; i < answer.getSelectedOptionIds().size(); i++) {
             Integer correctPos = correctPositions.get(answer.getSelectedOptionIds().get(i));
-            if (correctPos != null && correctPos == i) {
+            if (correctPos != null && correctPos == i + 1) {
                 points++;
             }
         }

@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.opr3.opr3.entity.attempt.QuizAttempt;
 
 import jakarta.persistence.CascadeType;
@@ -21,6 +22,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
@@ -38,6 +40,8 @@ public class User implements UserDetails {
     private String name;
 
     @Column(name = "password")
+    @ToString.Exclude
+    @JsonIgnore
     private String password;
 
     @Column(name = "email", unique = true)

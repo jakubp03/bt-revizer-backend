@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.opr3.opr3.dto.AnswerSubmission;
+import com.opr3.opr3.dto.QuizResponse;
 import com.opr3.opr3.dto.QuizResultResponse;
 import com.opr3.opr3.dto.SubmitQuizRequest;
 import com.opr3.opr3.entity.Quiz;
@@ -93,7 +94,7 @@ public class QuizService {
         Double averageScore = quizAttemptRepository.findAverageScorePercentageByQuizId(quiz.getId());
 
         // 8. Compute previous attempt score percentage
-        Double previousScorePercentage = previousAttempt.get().getScorePercentage();
+        Double previousScorePercentage = previousAttempt.map(QuizAttempt::getScorePercentage).orElse(null);
 
         log.info("Quiz submitted: quizId={}, attemptId={}, score={}%, previous={}%, avg={}%",
                 quiz.getId(), attempt.getId(), scorePercentage,
@@ -194,8 +195,10 @@ public class QuizService {
         }
     }
 
-    public List<Quiz> tempMethod() {
+    public List<QuizResponse> tempMethod() {
         User user = authUtilService.getAuthenticatedUser();
-        return quizRepository.findByAuthorUidOrderByCreatedAtDesc(user.getUid());
+        return quizRepository.findByAuthorUidOrderByCreatedAtDesc(user.getUid()).stream()
+                .map(QuizResponse::from)
+                .toList();
     }
 }

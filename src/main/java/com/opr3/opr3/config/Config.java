@@ -58,8 +58,8 @@ public class Config {
         CommandLineRunner commandLineRunner(ApplicationContext ctx) {
                 return args -> {
                         initializeMinimalQuizData();
-                        // userRepository.findUserByEmail("test1@email.com")
-                        // .ifPresent(this::initializeMockQuizData);
+                        userRepository.findUserByEmail("test1@email.com")
+                                        .ifPresent(this::initializeMockQuizData);
                 };
         }
 
