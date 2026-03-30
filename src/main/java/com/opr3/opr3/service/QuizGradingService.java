@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.opr3.opr3.entity.attempt.AttemptAnswer;
@@ -20,6 +22,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class QuizGradingService {
+
+    private static final Logger log = LoggerFactory.getLogger(QuizGradingService.class);
+
+    private final OllamaService ollamaService;
 
     /**
      * Grades the quiz attempt by evaluating each answer against the correct
@@ -95,16 +101,19 @@ public class QuizGradingService {
         }
 
         if (config.getReview() == TextReviewType.MANUAL) {
-            return answer.getSelectedOptionIds().contains("true") ? 1 : 0;
+            return answer.getIsCorrect() ? 1 : 0;
         }
 
-        // AUTOMATIC review
+        // AUTOMATIC review via LLM
         String correctAnswer = config.getCorrectAnswer();
         String userAnswer = answer.getTextAnswer();
         if (correctAnswer == null || userAnswer == null) {
+            log.warn("[Grading] TEXT_INPUT questionId={} skipped LLM check — correctAnswer or userAnswer is null",
+                    answer.getQuestion().getId());
             return 0;
         }
-        return correctAnswer.trim().equalsIgnoreCase(userAnswer.trim()) ? 1 : 0;
+        return ollamaService.isAnswerCorrect(
+                answer.getQuestion().getQuestionText(), correctAnswer, userAnswer) ? 1 : 0;
     }
 
     /**
