@@ -1,0 +1,13 @@
+{
+    "quizId": 2,
+    "timeSpent": 30,
+    "idBasedAnswers": [],
+    "textBasedAnswers": [
+        {
+            "questionId": 8,
+            "submittedAnswer": "H2O",
+            "userMarkedCorrect": true
+        }
+    ],
+    "matchBasedAttemptAnswer": []
+}

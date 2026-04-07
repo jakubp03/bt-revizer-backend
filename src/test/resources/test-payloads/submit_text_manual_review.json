@@ -1,0 +1,13 @@
+{
+    "quizId": 3,
+    "timeSpent": 45,
+    "idBasedAnswers": [],
+    "textBasedAnswers": [
+        {
+            "questionId": 9,
+            "submittedAnswer": "HTTP transfers data between servers and clients.",
+            "userMarkedCorrect": true
+        }
+    ],
+    "matchBasedAttemptAnswer": []
+}

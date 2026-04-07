@@ -14,5 +14,5 @@ public interface AttemptAnswerRepository extends JpaRepository<AttemptAnswer, Lo
 
     List<AttemptAnswer> findByQuestionId(Long questionId);
 
-    long countByQuestionIdAndIsCorrectFalse(Long questionId);
+    long countByQuestionIdAndIsAnswerCorrectFalse(Long questionId);
 }

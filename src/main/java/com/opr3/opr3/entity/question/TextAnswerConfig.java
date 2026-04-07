@@ -41,5 +41,5 @@ public class TextAnswerConfig {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "review", nullable = false)
-    private TextReviewType review;
+    private TextReviewType textReviewType;
 }

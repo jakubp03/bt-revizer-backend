@@ -15,7 +15,11 @@ public class SubmitQuizRequest {
 
     private Long quizId;
 
-    private List<AnswerSubmission> answers;
+    private List<IdBasedAnswerSubmission> idBasedAnswers;
+
+    private List<TextBasedAnswerSubmission> textBasedAnswers;
+
+    private List<MatchBasedAnswerSubmission> matchBasedAttemptAnswer;
 
     private Integer timeSpent;
 }

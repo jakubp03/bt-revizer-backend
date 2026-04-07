@@ -60,6 +60,8 @@ public class Config {
                         initializeMinimalQuizData();
                         userRepository.findUserByEmail("test1@email.com")
                                         .ifPresent(this::initializeMockQuizData);
+                        userRepository.findUserByEmail("test1@email.com")
+                                        .ifPresent(this::initializeTextReviewQuizData);
                 };
         }
 
@@ -157,7 +159,7 @@ public class Config {
                 TextAnswerConfig textConfig = TextAnswerConfig.builder()
                                 .question(q4)
                                 .correctAnswer("HyperText Transfer Protocol")
-                                .review(TextReviewType.MANUAL)
+                                .textReviewType(TextReviewType.MANUAL)
                                 .build();
                 q4.setTextConfig(textConfig);
 
@@ -217,6 +219,66 @@ public class Config {
 
                 quizRepository.save(quiz);
                 log.info("Mock grading quiz created (7 questions, 11 total points)");
+        }
+
+        @Transactional
+        public void initializeTextReviewQuizData(User author) {
+                boolean alreadyExists = quizRepository.findByAuthorUidOrderByCreatedAtDesc(author.getUid())
+                                .stream().anyMatch(t -> "Text Input Auto Review Quiz".equals(t.getTitle()));
+                if (alreadyExists) {
+                        log.info("Text review quizzes already exist, skipping");
+                        return;
+                }
+
+                // --- Quiz 1: TEXT_INPUT with AUTOMATIC review ---
+                Question autoQ = Question.builder()
+                                .questionOrder(1)
+                                .type(QuestionType.TEXT_INPUT)
+                                .questionText("What is the chemical symbol for water?")
+                                .points(1)
+                                .build();
+                TextAnswerConfig autoConfig = TextAnswerConfig.builder()
+                                .question(autoQ)
+                                .correctAnswer("H2O")
+                                .textReviewType(TextReviewType.AUTOMATIC)
+                                .build();
+                autoQ.setTextConfig(autoConfig);
+
+                Quiz autoQuiz = Quiz.builder()
+                                .author(author)
+                                .title("Text Input Auto Review Quiz")
+                                .description("Single text input question graded automatically.")
+                                .gradingMethod(QuizGradingMethod.OnePointPerAnswer)
+                                .questions(new ArrayList<>(List.of(autoQ)))
+                                .build();
+                autoQ.setQuiz(autoQuiz);
+                quizRepository.save(autoQuiz);
+
+                // --- Quiz 2: TEXT_INPUT with MANUAL review ---
+                Question manualQ = Question.builder()
+                                .questionOrder(1)
+                                .type(QuestionType.TEXT_INPUT)
+                                .questionText("Describe the main purpose of the HTTP protocol.")
+                                .points(1)
+                                .build();
+                TextAnswerConfig manualConfig = TextAnswerConfig.builder()
+                                .question(manualQ)
+                                .correctAnswer("HTTP is used to transfer data on the web.")
+                                .textReviewType(TextReviewType.MANUAL)
+                                .build();
+                manualQ.setTextConfig(manualConfig);
+
+                Quiz manualQuiz = Quiz.builder()
+                                .author(author)
+                                .title("Text Input Manual Review Quiz")
+                                .description("Single text input question requiring manual grading.")
+                                .gradingMethod(QuizGradingMethod.OnePointPerAnswer)
+                                .questions(new ArrayList<>(List.of(manualQ)))
+                                .build();
+                manualQ.setQuiz(manualQuiz);
+                quizRepository.save(manualQuiz);
+
+                log.info("Text review quizzes created (auto + manual, 1 question each)");
         }
 
         @Bean

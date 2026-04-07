@@ -2,6 +2,7 @@ package com.opr3.opr3.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,14 +14,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.opr3.opr3.dto.AnswerSubmission;
+import com.opr3.opr3.dto.IdBasedAnswerSubmission;
+import com.opr3.opr3.dto.MatchBasedAnswerSubmission;
 import com.opr3.opr3.dto.QuizResponse;
 import com.opr3.opr3.dto.QuizResultResponse;
 import com.opr3.opr3.dto.SubmitQuizRequest;
+import com.opr3.opr3.dto.TextBasedAnswerSubmission;
 import com.opr3.opr3.entity.Quiz;
 import com.opr3.opr3.entity.User;
-import com.opr3.opr3.entity.attempt.AttemptAnswer;
+import com.opr3.opr3.entity.attempt.IdBasedAttemptAnswer;
+import com.opr3.opr3.entity.attempt.MatchBasedAttemptAnswer;
+import com.opr3.opr3.entity.attempt.MatchedPairEntry;
 import com.opr3.opr3.entity.attempt.QuizAttempt;
+import com.opr3.opr3.entity.attempt.TextBasedAttemptAnswer;
 import com.opr3.opr3.entity.question.Question;
 import com.opr3.opr3.enums.QuestionType;
 import com.opr3.opr3.exception.InvalidRequestException;
@@ -69,19 +75,49 @@ public class QuizService {
         // 4. Build AttemptAnswer entities from submitted answers
         Map<Long, Question> questionMap = quiz.getIdQuestionMap();
 
-        for (AnswerSubmission answerSubmission : request.getAnswers()) {
-            Question question = questionMap.get(answerSubmission.getQuestionId());
+        for (IdBasedAnswerSubmission sub : safeList(request.getIdBasedAnswers())) {
+            Question question = questionMap.get(sub.getQuestionId());
 
-            AttemptAnswer attemptAnswer = AttemptAnswer.builder()
+            IdBasedAttemptAnswer answer = IdBasedAttemptAnswer.builder()
                     .attempt(attempt)
                     .question(question)
-                    .selectedOptionIds(answerSubmission.getSelectedOptionIds() != null
-                            ? new ArrayList<>(answerSubmission.getSelectedOptionIds())
+                    .selectedOptionIds(sub.getSelectedOptionIds() != null
+                            ? new ArrayList<>(sub.getSelectedOptionIds())
                             : new ArrayList<>())
-                    .textAnswer(answerSubmission.getTextAnswer())
                     .build();
 
-            attempt.getAnswers().add(attemptAnswer);
+            attempt.getAnswers().add(answer);
+        }
+
+        for (TextBasedAnswerSubmission sub : safeList(request.getTextBasedAnswers())) {
+            Question question = questionMap.get(sub.getQuestionId());
+
+            TextBasedAttemptAnswer answer = TextBasedAttemptAnswer.builder()
+                    .attempt(attempt)
+                    .question(question)
+                    .submittedAnswer(sub.getSubmittedAnswer())
+                    .isAnswerCorrect(sub.getUserMarkedCorrect())
+                    .build();
+
+            attempt.getAnswers().add(answer);
+        }
+
+        for (MatchBasedAnswerSubmission sub : safeList(request.getMatchBasedAttemptAnswer())) {
+            Question question = questionMap.get(sub.getQuestionId());
+
+            List<MatchedPairEntry> pairs = sub.getMatchedPairs() != null
+                    ? sub.getMatchedPairs().stream()
+                            .map(p -> new MatchedPairEntry(p.getLeftId(), p.getRightId()))
+                            .toList()
+                    : new ArrayList<>();
+
+            MatchBasedAttemptAnswer answer = MatchBasedAttemptAnswer.builder()
+                    .attempt(attempt)
+                    .question(question)
+                    .matchedPairs(pairs)
+                    .build();
+
+            attempt.getAnswers().add(answer);
         }
 
         // 5. Grade the quiz
@@ -108,6 +144,10 @@ public class QuizService {
                 .build();
     }
 
+    private <T> List<T> safeList(List<T> list) {
+        return list != null ? list : Collections.emptyList();
+    }
+
     private Quiz validateQuiz(SubmitQuizRequest request) {
         if (request.getQuizId() == null) {
             throw new InvalidRequestException("Quiz ID is required");
@@ -117,38 +157,44 @@ public class QuizService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Quiz not found with ID: " + request.getQuizId()));
 
-        if (request.getAnswers() == null) {
-            throw new InvalidRequestException("Answers list cannot be null");
+        Map<Long, Question> questionMap = quiz.getIdQuestionMap();
+        Set<Long> seen = new HashSet<>();
+
+        for (IdBasedAnswerSubmission answer : safeList(request.getIdBasedAnswers())) {
+            validateCommonAnswer(answer.getQuestionId(), questionMap, seen);
+            validateIdBasedAnswer(answer, questionMap.get(answer.getQuestionId()));
         }
 
-        Map<Long, Question> questionMap = quiz.getIdQuestionMap();
+        for (TextBasedAnswerSubmission answer : safeList(request.getTextBasedAnswers())) {
+            validateCommonAnswer(answer.getQuestionId(), questionMap, seen);
+            validateTextBasedAnswer(answer, questionMap.get(answer.getQuestionId()));
+        }
 
-        Set<Long> seen = new HashSet<>();
-        for (AnswerSubmission answer : request.getAnswers()) {
-            if (answer.getQuestionId() == null) {
-                throw new InvalidRequestException("Question ID is required for each answer");
-            }
-
-            if (!questionMap.containsKey(answer.getQuestionId())) {
-                throw new InvalidRequestException(
-                        "Question ID " + answer.getQuestionId() + " does not belong to this quiz");
-            }
-
-            if (!seen.add(answer.getQuestionId())) {
-                throw new InvalidRequestException(
-                        "Duplicate answer for question ID: " + answer.getQuestionId());
-            }
-
-            validateAnswerStructure(answer, questionMap.get(answer.getQuestionId()));
+        for (MatchBasedAnswerSubmission answer : safeList(request.getMatchBasedAttemptAnswer())) {
+            validateCommonAnswer(answer.getQuestionId(), questionMap, seen);
+            validateMatchBasedAnswer(answer, questionMap.get(answer.getQuestionId()));
         }
 
         return quiz;
     }
 
-    private void validateAnswerStructure(AnswerSubmission answer, Question question) {
+    private void validateCommonAnswer(Long questionId, Map<Long, Question> questionMap, Set<Long> seen) {
+        if (questionId == null) {
+            throw new InvalidRequestException("Question ID is required for each answer");
+        }
+        if (!questionMap.containsKey(questionId)) {
+            throw new InvalidRequestException(
+                    "Question ID " + questionId + " does not belong to this quiz");
+        }
+        if (!seen.add(questionId)) {
+            throw new InvalidRequestException(
+                    "Duplicate answer for question ID: " + questionId);
+        }
+    }
+
+    private void validateIdBasedAnswer(IdBasedAnswerSubmission answer, Question question) {
         QuestionType type = question.getType();
         boolean hasOptions = answer.getSelectedOptionIds() != null && !answer.getSelectedOptionIds().isEmpty();
-        boolean hasText = answer.getTextAnswer() != null && !answer.getTextAnswer().isBlank();
 
         switch (type) {
             case SINGLE_CHOICE, TRUE_FALSE -> {
@@ -168,18 +214,6 @@ public class QuizService {
                                     + " (MULTIPLE_CHOICE) requires at least one selected option");
                 }
             }
-            case TEXT_INPUT -> {
-                if (!hasText) {
-                    throw new InvalidRequestException(
-                            "Question " + question.getId() + " (TEXT_INPUT) requires a text answer");
-                }
-            }
-            case MATCHING -> {
-                if (!hasOptions) {
-                    throw new InvalidRequestException(
-                            "Question " + question.getId() + " (MATCHING) requires selected option pairs");
-                }
-            }
             case ORDERING -> {
                 if (!hasOptions) {
                     throw new InvalidRequestException(
@@ -187,11 +221,33 @@ public class QuizService {
                 }
             }
             case FLASHCARD -> {
-                if (!hasText && !hasOptions) {
-                    throw new InvalidRequestException(
-                            "Question " + question.getId() + " (FLASHCARD) requires an answer");
-                }
+                // flashcard is self-evaluated; selectedOptionIds may or may not be present
             }
+            default -> throw new InvalidRequestException(
+                    "Question " + question.getId() + " (" + type + ") should not be in idBasedAnswers");
+        }
+    }
+
+    private void validateTextBasedAnswer(TextBasedAnswerSubmission answer, Question question) {
+        if (question.getType() != QuestionType.TEXT_INPUT) {
+            throw new InvalidRequestException(
+                    "Question " + question.getId() + " (" + question.getType() + ") should not be in textBasedAnswers");
+        }
+        if (answer.getSubmittedAnswer() == null || answer.getSubmittedAnswer().isBlank()) {
+            throw new InvalidRequestException(
+                    "Question " + question.getId() + " (TEXT_INPUT) requires a text answer");
+        }
+    }
+
+    private void validateMatchBasedAnswer(MatchBasedAnswerSubmission answer, Question question) {
+        if (question.getType() != QuestionType.MATCHING) {
+            throw new InvalidRequestException(
+                    "Question " + question.getId() + " (" + question.getType()
+                            + ") should not be in matchBasedAnswers");
+        }
+        if (answer.getMatchedPairs() == null || answer.getMatchedPairs().isEmpty()) {
+            throw new InvalidRequestException(
+                    "Question " + question.getId() + " (MATCHING) requires matched pairs");
         }
     }
 

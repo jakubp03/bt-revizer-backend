@@ -10,7 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.opr3.opr3.entity.attempt.AttemptAnswer;
+import com.opr3.opr3.entity.attempt.IdBasedAttemptAnswer;
+import com.opr3.opr3.entity.attempt.MatchBasedAttemptAnswer;
+import com.opr3.opr3.entity.attempt.MatchedPairEntry;
 import com.opr3.opr3.entity.attempt.QuizAttempt;
+import com.opr3.opr3.entity.attempt.TextBasedAttemptAnswer;
 import com.opr3.opr3.entity.question.OptionChoice;
 import com.opr3.opr3.entity.question.OptionOrderItem;
 import com.opr3.opr3.entity.question.Question;
@@ -40,16 +44,16 @@ public class QuizGradingService {
         for (AttemptAnswer answer : attempt.getAnswers()) {
             Question question = answer.getQuestion();
             int pointsAwarded = switch (question.getType()) {
-                case SINGLE_CHOICE, TRUE_FALSE -> gradeSingleChoice(answer, question);
-                case MULTIPLE_CHOICE -> gradeMultipleChoice(answer, question);
-                case TEXT_INPUT -> gradeTextInput(answer, question);
-                case MATCHING -> gradeMatching(answer, question);
-                case ORDERING -> gradeOrdering(answer, question);
-                case FLASHCARD -> gradeFlashcard(answer, question);
+                case SINGLE_CHOICE, TRUE_FALSE -> gradeSingleChoice((IdBasedAttemptAnswer) answer, question);
+                case MULTIPLE_CHOICE -> gradeMultipleChoice((IdBasedAttemptAnswer) answer, question);
+                case TEXT_INPUT -> gradeTextInput((TextBasedAttemptAnswer) answer, question);
+                case MATCHING -> gradeMatching((MatchBasedAttemptAnswer) answer, question);
+                case ORDERING -> gradeOrdering((IdBasedAttemptAnswer) answer, question);
+                case FLASHCARD -> gradeFlashcard((IdBasedAttemptAnswer) answer, question);
             };
 
             answer.setPointsAwarded(pointsAwarded);
-            answer.setIsCorrect(pointsAwarded == question.getPoints());
+            answer.setIsAnswerCorrect(pointsAwarded == question.getPoints());
             totalScore += pointsAwarded;
         }
 
@@ -61,13 +65,13 @@ public class QuizGradingService {
      * SINGLE_CHOICE / TRUE_FALSE: exactly one selected option, 1 point if it's
      * the correct one.
      */
-    private int gradeSingleChoice(AttemptAnswer answer, Question question) {
+    private int gradeSingleChoice(IdBasedAttemptAnswer answer, Question question) {
         if (answer.getSelectedOptionIds().isEmpty()) {
             return 0;
         }
-        String selectedId = answer.getSelectedOptionIds().get(0);
+        Long selectedId = answer.getSelectedOptionIds().get(0);
         return question.getChoiceOptions().stream()
-                .filter(opt -> String.valueOf(opt.getId()).equals(selectedId) && opt.isCorrect())
+                .filter(opt -> opt.getId().equals(selectedId) && opt.isCorrect())
                 .findFirst()
                 .map(opt -> 1)
                 .orElse(0);
@@ -76,11 +80,11 @@ public class QuizGradingService {
     /**
      * MULTIPLE_CHOICE: 1 point for each correctly selected correct option.
      */
-    private int gradeMultipleChoice(AttemptAnswer answer, Question question) {
-        Set<String> selectedIds = new HashSet<>(answer.getSelectedOptionIds());
+    private int gradeMultipleChoice(IdBasedAttemptAnswer answer, Question question) {
+        Set<Long> selectedIds = new HashSet<>(answer.getSelectedOptionIds());
         int points = 0;
         for (OptionChoice choice : question.getChoiceOptions()) {
-            if (choice.isCorrect() && selectedIds.contains(String.valueOf(choice.getId()))) {
+            if (choice.isCorrect() && selectedIds.contains(choice.getId())) {
                 points++;
             }
         }
@@ -90,23 +94,22 @@ public class QuizGradingService {
     /**
      * TEXT_INPUT:
      * - MANUAL review: the user self-evaluates before submission;
-     * selectedOptionIds contains "true" if they judged their answer correct.
-     * - AUTOMATIC review: case-insensitive comparison against the stored correct
-     * answer.
+     * isAnswerCorrect is already set from the DTO's userMarkedCorrect.
+     * - AUTOMATIC review: LLM comparison against the stored correct answer.
      */
-    private int gradeTextInput(AttemptAnswer answer, Question question) {
+    private int gradeTextInput(TextBasedAttemptAnswer answer, Question question) {
         TextAnswerConfig config = question.getTextConfig();
         if (config == null) {
             return 0;
         }
 
-        if (config.getReview() == TextReviewType.MANUAL) {
-            return answer.getIsCorrect() ? 1 : 0;
+        if (config.getTextReviewType() == TextReviewType.MANUAL) {
+            return Boolean.TRUE.equals(answer.getIsAnswerCorrect()) ? 1 : 0;
         }
 
         // AUTOMATIC review via LLM
         String correctAnswer = config.getCorrectAnswer();
-        String userAnswer = answer.getTextAnswer();
+        String userAnswer = answer.getSubmittedAnswer();
         if (correctAnswer == null || userAnswer == null) {
             log.warn("[Grading] TEXT_INPUT questionId={} skipped LLM check — correctAnswer or userAnswer is null",
                     answer.getQuestion().getId());
@@ -117,16 +120,14 @@ public class QuizGradingService {
     }
 
     /**
-     * MATCHING: selectedOptionIds contains entries formatted as
-     * "leftPairId:rightPairId".
+     * MATCHING: each MatchedPairEntry has leftId and rightId.
      * A match is correct when both IDs refer to the same OptionMatchPair
      * (i.e. the student paired the left side with its own right side).
      */
-    private int gradeMatching(AttemptAnswer answer, Question question) {
+    private int gradeMatching(MatchBasedAttemptAnswer answer, Question question) {
         int points = 0;
-        for (String pair : answer.getSelectedOptionIds()) {
-            String[] parts = pair.split(":");
-            if (parts.length == 2 && parts[0].equals(parts[1])) {
+        for (MatchedPairEntry pair : answer.getMatchedPairs()) {
+            if (pair.getLeftId().equals(pair.getRightId())) {
                 points++;
             }
         }
@@ -138,10 +139,10 @@ public class QuizGradingService {
      * student placed them (index 0 = position 0).
      * 1 point for each item whose list index matches its correctPosition.
      */
-    private int gradeOrdering(AttemptAnswer answer, Question question) {
-        Map<String, Integer> correctPositions = question.getOrderItems().stream()
+    private int gradeOrdering(IdBasedAttemptAnswer answer, Question question) {
+        Map<Long, Integer> correctPositions = question.getOrderItems().stream()
                 .collect(Collectors.toMap(
-                        item -> String.valueOf(item.getId()),
+                        item -> item.getId(),
                         OptionOrderItem::getCorrectPosition));
 
         int points = 0;
@@ -156,9 +157,9 @@ public class QuizGradingService {
 
     /**
      * FLASHCARD: the user self-evaluates recall; selectedOptionIds contains
-     * "true" if they recalled correctly.
+     * the flashcard option ID if they recalled correctly, empty otherwise.
      */
-    private int gradeFlashcard(AttemptAnswer answer, Question question) {
-        return answer.getSelectedOptionIds().contains("true") ? 1 : 0;
+    private int gradeFlashcard(IdBasedAttemptAnswer answer, Question question) {
+        return !answer.getSelectedOptionIds().isEmpty() ? 1 : 0;
     }
 }

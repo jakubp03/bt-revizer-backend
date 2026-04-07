@@ -1,60 +1,63 @@
 {
     "quizId": 1,
     "timeSpent": 30,
-    "answers": [
+    "idBasedAnswers": [
         {
             "questionId": 1,
             "selectedOptionIds": [
-                "2"
-            ],
-            "textAnswer": null
+                2
+            ]
         },
         {
             "questionId": 2,
             "selectedOptionIds": [
-                "7"
-            ],
-            "textAnswer": null
+                7
+            ]
         },
         {
             "questionId": 3,
             "selectedOptionIds": [
-                "10"
-            ],
-            "textAnswer": null
-        },
-        {
-            "questionId": 4,
-            "selectedOptionIds": [
-                "false"
-            ],
-            "textAnswer": "I don't know"
-        },
-        {
-            "questionId": 5,
-            "selectedOptionIds": [
-                "1:2",
-                "2:3",
-                "3:1"
-            ],
-            "textAnswer": null
+                10
+            ]
         },
         {
             "questionId": 6,
             "selectedOptionIds": [
-                "4",
-                "3",
-                "2",
-                "1"
-            ],
-            "textAnswer": null
+                4,
+                3,
+                2,
+                1
+            ]
         },
         {
             "questionId": 7,
-            "selectedOptionIds": [
-                "false"
-            ],
-            "textAnswer": null
+            "selectedOptionIds": []
+        }
+    ],
+    "textBasedAnswers": [
+        {
+            "questionId": 4,
+            "submittedAnswer": "I don't know",
+            "userMarkedCorrect": false
+        }
+    ],
+    "matchBasedAttemptAnswer": [
+        {
+            "questionId": 5,
+            "matchedPairs": [
+                {
+                    "leftId": 1,
+                    "rightId": 2
+                },
+                {
+                    "leftId": 2,
+                    "rightId": 3
+                },
+                {
+                    "leftId": 3,
+                    "rightId": 1
+                }
+            ]
         }
     ]
 }

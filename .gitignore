@@ -9,6 +9,7 @@ application-dev.properties
 !application-dev.properties.example
 /logs
 /docs
+todo.txt
 
 ### STS ###
 .apt_generated
