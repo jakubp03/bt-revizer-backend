@@ -1,4 +1,4 @@
-package com.opr3.opr3.service;
+package com.opr3.opr3.service.quiz;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -115,6 +115,9 @@ public class QuizGradingService {
                     answer.getQuestion().getId());
             return 0;
         }
+
+        log.info("automatic question review initialized");
+
         return ollamaService.isAnswerCorrect(
                 answer.getQuestion().getQuestionText(), correctAnswer, userAnswer) ? 1 : 0;
     }

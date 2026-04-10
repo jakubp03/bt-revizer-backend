@@ -1,4 +1,4 @@
-package com.opr3.opr3.service;
+package com.opr3.opr3.service.auth;
 
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;

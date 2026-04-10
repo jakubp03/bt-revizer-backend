@@ -1,4 +1,4 @@
-package com.opr3.opr3.service;
+package com.opr3.opr3.service.quiz;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

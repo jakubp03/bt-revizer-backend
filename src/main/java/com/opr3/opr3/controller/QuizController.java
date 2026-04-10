@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.opr3.opr3.dto.QuizResponse;
-import com.opr3.opr3.dto.QuizResultResponse;
-import com.opr3.opr3.dto.SubmitQuizRequest;
-import com.opr3.opr3.service.QuizService;
+import com.opr3.opr3.dto.attempt.QuizResultResponse;
+import com.opr3.opr3.dto.attempt.SubmitQuizRequest;
+import com.opr3.opr3.dto.quiz.QuizResponse;
+import com.opr3.opr3.service.quiz.QuizService;
 
 import lombok.RequiredArgsConstructor;
 

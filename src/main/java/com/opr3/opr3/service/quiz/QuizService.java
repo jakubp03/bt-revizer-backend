@@ -1,4 +1,4 @@
-package com.opr3.opr3.service;
+package com.opr3.opr3.service.quiz;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.opr3.opr3.dto.IdBasedAnswerSubmission;
-import com.opr3.opr3.dto.MatchBasedAnswerSubmission;
-import com.opr3.opr3.dto.QuizResponse;
-import com.opr3.opr3.dto.QuizResultResponse;
-import com.opr3.opr3.dto.SubmitQuizRequest;
-import com.opr3.opr3.dto.TextBasedAnswerSubmission;
+import com.opr3.opr3.dto.attempt.IdBasedAnswerSubmission;
+import com.opr3.opr3.dto.attempt.MatchBasedAnswerSubmission;
+import com.opr3.opr3.dto.attempt.QuizResultResponse;
+import com.opr3.opr3.dto.attempt.SubmitQuizRequest;
+import com.opr3.opr3.dto.attempt.TextBasedAnswerSubmission;
+import com.opr3.opr3.dto.quiz.QuizResponse;
 import com.opr3.opr3.entity.Quiz;
 import com.opr3.opr3.entity.User;
 import com.opr3.opr3.entity.attempt.IdBasedAttemptAnswer;
@@ -33,6 +33,7 @@ import com.opr3.opr3.exception.InvalidRequestException;
 import com.opr3.opr3.exception.ResourceNotFoundException;
 import com.opr3.opr3.repository.QuizRepository;
 import com.opr3.opr3.repository.attempt.QuizAttemptRepository;
+import com.opr3.opr3.service.auth.AuthUtilService;
 
 import lombok.RequiredArgsConstructor;
 

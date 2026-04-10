@@ -1,4 +1,4 @@
-package com.opr3.opr3.service;
+package com.opr3.opr3.service.auth;
 
 import java.security.Key;
 import java.util.Date;
@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
-import com.opr3.opr3.dto.JwtValidationResult;
+import com.opr3.opr3.dto.auth.JwtValidationResult;
 import com.opr3.opr3.entity.User;
 
 import io.jsonwebtoken.Claims;

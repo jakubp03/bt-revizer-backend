@@ -16,9 +16,9 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.opr3.opr3.dto.JwtValidationResult;
+import com.opr3.opr3.dto.auth.JwtValidationResult;
 import com.opr3.opr3.entity.User;
-import com.opr3.opr3.service.JwtService;
+import com.opr3.opr3.service.auth.JwtService;
 import com.opr3.opr3.test_util.MockJwtService;
 
 import io.jsonwebtoken.Claims;

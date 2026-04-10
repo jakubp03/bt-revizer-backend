@@ -1,4 +1,4 @@
-package com.opr3.opr3.service;
+package com.opr3.opr3.service.auth;
 
 import java.util.Optional;
 
@@ -12,14 +12,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.opr3.opr3.dto.AuthRequest;
-import com.opr3.opr3.dto.RegisterRequest;
-import com.opr3.opr3.dto.TokenInfo;
+import com.opr3.opr3.dto.auth.AuthRequest;
+import com.opr3.opr3.dto.auth.RegisterRequest;
+import com.opr3.opr3.dto.auth.TokenInfo;
 import com.opr3.opr3.entity.Token;
 import com.opr3.opr3.entity.User;
 import com.opr3.opr3.exception.ResourceAlreadyExistsException;
 import com.opr3.opr3.repository.TokenRepository;
 import com.opr3.opr3.repository.UserRepository;
+import com.opr3.opr3.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 

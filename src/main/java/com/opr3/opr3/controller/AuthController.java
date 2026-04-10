@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.opr3.opr3.dto.AuthRequest;
-import com.opr3.opr3.dto.AuthResponse;
-import com.opr3.opr3.dto.RegisterRequest;
-import com.opr3.opr3.dto.TokenInfo;
-import com.opr3.opr3.service.AuthService;
+import com.opr3.opr3.dto.auth.AuthRequest;
+import com.opr3.opr3.dto.auth.AuthResponse;
+import com.opr3.opr3.dto.auth.RegisterRequest;
+import com.opr3.opr3.dto.auth.TokenInfo;
+import com.opr3.opr3.service.auth.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

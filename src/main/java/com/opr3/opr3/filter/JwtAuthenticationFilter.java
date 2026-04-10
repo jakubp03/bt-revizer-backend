@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.opr3.opr3.config.SecurityConfig;
-import com.opr3.opr3.dto.JwtValidationResult;
+import com.opr3.opr3.dto.auth.JwtValidationResult;
 import com.opr3.opr3.repository.TokenRepository;
-import com.opr3.opr3.service.JwtService;
+import com.opr3.opr3.service.auth.JwtService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

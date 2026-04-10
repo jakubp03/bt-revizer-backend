@@ -23,15 +23,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.opr3.opr3.dto.AuthRequest;
-import com.opr3.opr3.dto.TokenInfo;
+import com.opr3.opr3.dto.auth.AuthRequest;
+import com.opr3.opr3.dto.auth.TokenInfo;
 import com.opr3.opr3.entity.Token;
 import com.opr3.opr3.entity.User;
 import com.opr3.opr3.repository.TokenRepository;
 import com.opr3.opr3.repository.UserRepository;
-import com.opr3.opr3.service.AuthService;
-import com.opr3.opr3.service.AuthUtilService;
-import com.opr3.opr3.service.JwtService;
+import com.opr3.opr3.service.auth.AuthService;
+import com.opr3.opr3.service.auth.AuthUtilService;
+import com.opr3.opr3.service.auth.JwtService;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {

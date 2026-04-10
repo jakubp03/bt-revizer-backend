@@ -1,4 +1,4 @@
-package com.opr3.opr3.dto;
+package com.opr3.opr3.dto.attempt;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

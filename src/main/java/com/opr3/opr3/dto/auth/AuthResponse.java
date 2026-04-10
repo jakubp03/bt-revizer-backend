@@ -1,6 +1,6 @@
-package com.opr3.opr3.dto;
+package com.opr3.opr3.dto.auth;
 
-import org.springframework.http.ResponseCookie;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TokenInfo {
+public class AuthResponse {
+
+    @JsonProperty("access_token")
     private String accessToken;
-    private ResponseCookie refreshCookie;
 }
