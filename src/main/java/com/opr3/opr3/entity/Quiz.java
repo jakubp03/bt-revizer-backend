@@ -86,6 +86,9 @@ public class Quiz {
     @Builder.Default
     private List<QuizAttempt> attempts = new ArrayList<>();
 
+    @Column(name = "icon", columnDefinition = "VARCHAR(10) CHARACTER SET utf8mb4")
+    private String icon;
+
     public Map<Long, Question> getIdQuestionMap() {
         return this.getQuestions().stream()
                 .collect(Collectors.toMap(Question::getId, Function.identity()));

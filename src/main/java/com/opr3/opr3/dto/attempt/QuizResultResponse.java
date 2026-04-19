@@ -17,5 +17,5 @@ public class QuizResultResponse {
 
     private Double previousAttemptScorePercentage;
 
-    private double averageScorePercentage;
+    private Double averageScorePercentage;
 }

@@ -62,6 +62,8 @@ public class Config {
                                         .ifPresent(this::initializeMockQuizData);
                         userRepository.findUserByEmail("test1@email.com")
                                         .ifPresent(this::initializeTextReviewQuizData);
+                        userRepository.findUserByEmail("test1@email.com")
+                                        .ifPresent(this::initializeTimerTestQuizData);
                 };
         }
 
@@ -210,6 +212,7 @@ public class Config {
                                 .author(author)
                                 .title("Mock Grading Quiz")
                                 .description("One question of every type — use this to test grading logic.")
+                                .icon("🧪")
                                 .gradingMethod(QuizGradingMethod.OnePointPerAnswer)
                                 .categories(Set.of(category))
                                 .questions(questions)
@@ -279,6 +282,40 @@ public class Config {
                 quizRepository.save(manualQuiz);
 
                 log.info("Text review quizzes created (auto + manual, 1 question each)");
+        }
+
+        @Transactional
+        public void initializeTimerTestQuizData(User author) {
+                boolean alreadyExists = quizRepository.findByAuthorUidOrderByCreatedAtDesc(author.getUid())
+                                .stream().anyMatch(t -> "Timer Test Quiz".equals(t.getTitle()));
+                if (alreadyExists) {
+                        log.info("Timer test quiz already exists, skipping");
+                        return;
+                }
+
+                Question q = Question.builder()
+                                .questionOrder(1)
+                                .type(QuestionType.TRUE_FALSE)
+                                .questionText("Is Java a statically typed language?")
+                                .points(1)
+                                .build();
+                q.setChoiceOptions(List.of(
+                                OptionChoice.builder().question(q).text("True").isCorrect(true).optionOrder(1).build(),
+                                OptionChoice.builder().question(q).text("False").isCorrect(false).optionOrder(2).build()));
+
+                Quiz quiz = Quiz.builder()
+                                .author(author)
+                                .title("Timer Test Quiz")
+                                .description("One true/false question with a 10-second timer — use this to test timer behaviour.")
+                                .icon("⏱️")
+                                .timeLimit(10)
+                                .gradingMethod(QuizGradingMethod.OnePointPerAnswer)
+                                .questions(new ArrayList<>(List.of(q)))
+                                .build();
+                q.setQuiz(quiz);
+
+                quizRepository.save(quiz);
+                log.info("Timer test quiz created (1 true/false question, 10s limit)");
         }
 
         @Bean

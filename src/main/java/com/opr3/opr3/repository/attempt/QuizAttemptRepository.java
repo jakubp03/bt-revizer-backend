@@ -21,6 +21,9 @@ public interface QuizAttemptRepository extends JpaRepository<QuizAttempt, Long> 
 
         long countByQuizIdAndSubmittedAtIsNotNull(Long quizId);
 
+        List<QuizAttempt> findByQuizIdAndUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(
+                        Long quizId, String userUid);
+
         Optional<QuizAttempt> findTopByQuizIdAndUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(
                         Long quizId, String userUid);
 
