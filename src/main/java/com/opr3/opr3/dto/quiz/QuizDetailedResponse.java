@@ -26,7 +26,6 @@ public class QuizDetailedResponse {
         private String title;
         private String description;
         private Integer timeLimit;
-        private boolean shuffleQuestions;
         private int totalPoints;
         private int questionCount;
         private Set<CategoryInfo> categories;
@@ -114,7 +113,6 @@ public class QuizDetailedResponse {
                                 .description(quiz.getDescription())
                                 .timeLimit(quiz.getTimeLimit())
                                 .icon(quiz.getIcon())
-                                .shuffleQuestions(quiz.isShuffleQuestions())
                                 .totalPoints(quiz.getQuestions().stream().mapToInt(Question::getPoints).sum())
                                 .questionCount(quiz.getQuestions().size())
                                 .categories(quiz.getCategories().stream()

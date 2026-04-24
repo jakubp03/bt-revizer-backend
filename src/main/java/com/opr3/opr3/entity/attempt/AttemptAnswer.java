@@ -46,5 +46,5 @@ public abstract class AttemptAnswer {
     private Boolean isAnswerCorrect;
 
     @Column(name = "points_awarded")
-    private Integer pointsAwarded;
+    private Double pointsAwarded;
 }

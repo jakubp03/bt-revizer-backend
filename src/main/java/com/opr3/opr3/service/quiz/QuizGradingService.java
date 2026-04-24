@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.opr3.opr3.entity.attempt.AttemptAnswer;
 import com.opr3.opr3.entity.attempt.IdBasedAttemptAnswer;
 import com.opr3.opr3.entity.attempt.MatchBasedAttemptAnswer;
-import com.opr3.opr3.entity.attempt.MatchedPairEntry;
 import com.opr3.opr3.entity.attempt.QuizAttempt;
 import com.opr3.opr3.entity.attempt.TextBasedAttemptAnswer;
 import com.opr3.opr3.entity.question.OptionChoice;
@@ -43,7 +42,7 @@ public class QuizGradingService {
 
         for (AttemptAnswer answer : attempt.getAnswers()) {
             Question question = answer.getQuestion();
-            int pointsAwarded = switch (question.getType()) {
+            double pointsAwarded = switch (question.getType()) {
                 case SINGLE_CHOICE, TRUE_FALSE -> gradeSingleChoice((IdBasedAttemptAnswer) answer, question);
                 case MULTIPLE_CHOICE -> gradeMultipleChoice((IdBasedAttemptAnswer) answer, question);
                 case TEXT_INPUT -> gradeTextInput((TextBasedAttemptAnswer) answer, question);
@@ -62,49 +61,47 @@ public class QuizGradingService {
     }
 
     /**
-     * SINGLE_CHOICE / TRUE_FALSE: exactly one selected option, 1 point if it's
-     * the correct one.
+     * SINGLE_CHOICE / TRUE_FALSE: full question points if the selected option is
+     * correct, 0 otherwise.
      */
-    private int gradeSingleChoice(IdBasedAttemptAnswer answer, Question question) {
+    private double gradeSingleChoice(IdBasedAttemptAnswer answer, Question question) {
         if (answer.getSelectedOptionIds().isEmpty()) {
             return 0;
         }
         Long selectedId = answer.getSelectedOptionIds().get(0);
-        return question.getChoiceOptions().stream()
-                .filter(opt -> opt.getId().equals(selectedId) && opt.isCorrect())
-                .findFirst()
-                .map(opt -> 1)
-                .orElse(0);
+        boolean correct = question.getChoiceOptions().stream()
+                .anyMatch(opt -> opt.getId().equals(selectedId) && opt.isCorrect());
+        return correct ? question.getPoints() : 0;
     }
 
     /**
-     * MULTIPLE_CHOICE: 1 point for each correctly selected correct option.
+     * MULTIPLE_CHOICE: weighted — (correct selected / total correct) × question
+     * points.
      */
-    private int gradeMultipleChoice(IdBasedAttemptAnswer answer, Question question) {
+    private double gradeMultipleChoice(IdBasedAttemptAnswer answer, Question question) {
+        long totalCorrect = question.getChoiceOptions().stream().filter(OptionChoice::isCorrect).count();
+        if (totalCorrect == 0)
+            return 0;
         Set<Long> selectedIds = new HashSet<>(answer.getSelectedOptionIds());
-        int points = 0;
-        for (OptionChoice choice : question.getChoiceOptions()) {
-            if (choice.isCorrect() && selectedIds.contains(choice.getId())) {
-                points++;
-            }
-        }
-        return points;
+        long correctSelected = question.getChoiceOptions().stream()
+                .filter(opt -> opt.isCorrect() && selectedIds.contains(opt.getId()))
+                .count();
+        return ((double) correctSelected / totalCorrect) * question.getPoints();
     }
 
     /**
      * TEXT_INPUT:
-     * - MANUAL review: the user self-evaluates before submission;
-     * isAnswerCorrect is already set from the DTO's userMarkedCorrect.
-     * - AUTOMATIC review: LLM comparison against the stored correct answer.
+     * - MANUAL review: the user self-evaluates; full points or 0.
+     * - AUTOMATIC review: LLM comparison; full points or 0.
      */
-    private int gradeTextInput(TextBasedAttemptAnswer answer, Question question) {
+    private double gradeTextInput(TextBasedAttemptAnswer answer, Question question) {
         TextAnswerConfig config = question.getTextConfig();
         if (config == null) {
             return 0;
         }
 
         if (config.getTextReviewType() == TextReviewType.MANUAL) {
-            return Boolean.TRUE.equals(answer.getIsAnswerCorrect()) ? 1 : 0;
+            return Boolean.TRUE.equals(answer.getIsAnswerCorrect()) ? question.getPoints() : 0;
         }
 
         // AUTOMATIC review via LLM
@@ -119,50 +116,49 @@ public class QuizGradingService {
         log.info("automatic question review initialized");
 
         return ollamaService.isAnswerCorrect(
-                answer.getQuestion().getQuestionText(), correctAnswer, userAnswer) ? 1 : 0;
+                answer.getQuestion().getQuestionText(), correctAnswer, userAnswer) ? question.getPoints() : 0;
     }
 
     /**
-     * MATCHING: each MatchedPairEntry has leftId and rightId.
-     * A match is correct when both IDs refer to the same OptionMatchPair
-     * (i.e. the student paired the left side with its own right side).
+     * MATCHING: weighted — (correct pairs / total pairs) × question points.
+     * A pair is correct when leftId equals rightId (same OptionMatchPair row).
      */
-    private int gradeMatching(MatchBasedAttemptAnswer answer, Question question) {
-        int points = 0;
-        for (MatchedPairEntry pair : answer.getMatchedPairs()) {
-            if (pair.getLeftId().equals(pair.getRightId())) {
-                points++;
-            }
-        }
-        return points;
+    private double gradeMatching(MatchBasedAttemptAnswer answer, Question question) {
+        int totalPairs = answer.getMatchedPairs().size();
+        if (totalPairs == 0)
+            return 0;
+        long correctPairs = answer.getMatchedPairs().stream()
+                .filter(pair -> pair.getLeftId().equals(pair.getRightId()))
+                .count();
+        return ((double) correctPairs / totalPairs) * question.getPoints();
     }
 
     /**
-     * ORDERING: selectedOptionIds contains order-item IDs in the sequence the
-     * student placed them (index 0 = position 0).
-     * 1 point for each item whose list index matches its correctPosition.
+     * ORDERING: weighted — (items in correct position / total items) × question
+     * points.
      */
-    private int gradeOrdering(IdBasedAttemptAnswer answer, Question question) {
+    private double gradeOrdering(IdBasedAttemptAnswer answer, Question question) {
+        int totalItems = question.getOrderItems().size();
+        if (totalItems == 0)
+            return 0;
         Map<Long, Integer> correctPositions = question.getOrderItems().stream()
                 .collect(Collectors.toMap(
                         item -> item.getId(),
                         OptionOrderItem::getCorrectPosition));
-
-        int points = 0;
+        long correctCount = 0;
         for (int i = 0; i < answer.getSelectedOptionIds().size(); i++) {
             Integer correctPos = correctPositions.get(answer.getSelectedOptionIds().get(i));
             if (correctPos != null && correctPos == i + 1) {
-                points++;
+                correctCount++;
             }
         }
-        return points;
+        return ((double) correctCount / totalItems) * question.getPoints();
     }
 
     /**
-     * FLASHCARD: the user self-evaluates recall; selectedOptionIds contains
-     * the flashcard option ID if they recalled correctly, empty otherwise.
+     * FLASHCARD: full question points if the user marked recall, 0 otherwise.
      */
-    private int gradeFlashcard(IdBasedAttemptAnswer answer, Question question) {
-        return !answer.getSelectedOptionIds().isEmpty() ? 1 : 0;
+    private double gradeFlashcard(IdBasedAttemptAnswer answer, Question question) {
+        return !answer.getSelectedOptionIds().isEmpty() ? question.getPoints() : 0;
     }
 }

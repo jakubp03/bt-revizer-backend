@@ -50,7 +50,7 @@ public class AttemptReviewResponse {
         private String questionText;
         private String imagePath;
         private int points;
-        private int pointsAwarded;
+        private double pointsAwarded;
         private boolean correct;
         // SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_FALSE
         private List<ChoiceOptionReview> choiceOptions;
@@ -146,7 +146,7 @@ public class AttemptReviewResponse {
     }
 
     private static QuestionReview mapQuestion(Question q, AttemptAnswer answer) {
-        int pointsAwarded = answer != null && answer.getPointsAwarded() != null ? answer.getPointsAwarded() : 0;
+        double pointsAwarded = answer != null && answer.getPointsAwarded() != null ? answer.getPointsAwarded() : 0;
         boolean isCorrect = answer != null && Boolean.TRUE.equals(answer.getIsAnswerCorrect());
 
         QuestionReview.QuestionReviewBuilder builder = QuestionReview.builder()

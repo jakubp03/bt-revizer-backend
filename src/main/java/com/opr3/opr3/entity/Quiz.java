@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import com.opr3.opr3.entity.attempt.QuizAttempt;
 import com.opr3.opr3.entity.question.Question;
-import com.opr3.opr3.enums.QuizGradingMethod;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -58,10 +57,6 @@ public class Quiz {
     @Column(name = "time_limit", nullable = true)
     private Integer timeLimit;
 
-    @Column(name = "shuffle_questions", nullable = false)
-    @Builder.Default
-    private boolean shuffleQuestions = false;
-
     @Column(name = "created_at", nullable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -69,9 +64,6 @@ public class Quiz {
     @Column(name = "updated_at", nullable = false)
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
-
-    @Column(name = "grading_method", nullable = false)
-    private QuizGradingMethod gradingMethod;
 
     @ManyToMany
     @JoinTable(name = "quiz_category", joinColumns = @JoinColumn(name = "quiz_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))

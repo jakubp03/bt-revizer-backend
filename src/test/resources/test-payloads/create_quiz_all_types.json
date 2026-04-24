@@ -1,0 +1,135 @@
+{
+    "title": "All Question Types Quiz",
+    "description": "A quiz covering every question type for testing purposes",
+    "timeLimit": 60,
+    "categoryIds": [],
+    "icon": null,
+    "questions": [
+        {
+            "type": "SINGLE_CHOICE",
+            "questionText": "Which planet is closest to the Sun?",
+            "imagePath": null,
+            "points": 1,
+            "choiceOptions": [
+                {
+                    "text": "Mercury",
+                    "isCorrect": true
+                },
+                {
+                    "text": "Venus",
+                    "isCorrect": false
+                },
+                {
+                    "text": "Earth",
+                    "isCorrect": false
+                },
+                {
+                    "text": "Mars",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "type": "MULTIPLE_CHOICE",
+            "questionText": "Which of the following are programming languages?",
+            "imagePath": null,
+            "points": 2,
+            "choiceOptions": [
+                {
+                    "text": "Java",
+                    "isCorrect": true
+                },
+                {
+                    "text": "Python",
+                    "isCorrect": true
+                },
+                {
+                    "text": "HTML",
+                    "isCorrect": false
+                },
+                {
+                    "text": "Rust",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "type": "TRUE_FALSE",
+            "questionText": "The Earth is the third planet from the Sun.",
+            "imagePath": null,
+            "points": 1,
+            "correctAnswer": true
+        },
+        {
+            "type": "TEXT_INPUT",
+            "questionText": "What is the capital of France?",
+            "imagePath": null,
+            "points": 2,
+            "textConfig": {
+                "correctAnswer": "Paris",
+                "reviewType": "AUTOMATIC"
+            }
+        },
+        {
+            "type": "TEXT_INPUT",
+            "questionText": "Explain the concept of recursion in your own words.",
+            "imagePath": null,
+            "points": 3,
+            "textConfig": {
+                "correctAnswer": null,
+                "reviewType": "MANUAL"
+            }
+        },
+        {
+            "type": "MATCHING",
+            "questionText": "Match each country to its capital city.",
+            "imagePath": null,
+            "points": 2,
+            "matchPairs": [
+                {
+                    "leftSide": "France",
+                    "rightSide": "Paris"
+                },
+                {
+                    "leftSide": "Germany",
+                    "rightSide": "Berlin"
+                },
+                {
+                    "leftSide": "Japan",
+                    "rightSide": "Tokyo"
+                },
+                {
+                    "leftSide": "Brazil",
+                    "rightSide": "Brasília"
+                }
+            ]
+        },
+        {
+            "type": "ORDERING",
+            "questionText": "Arrange the following events in chronological order.",
+            "imagePath": null,
+            "points": 2,
+            "orderItems": [
+                {
+                    "text": "World War I begins"
+                },
+                {
+                    "text": "Moon landing"
+                },
+                {
+                    "text": "World Wide Web invented"
+                },
+                {
+                    "text": "COVID-19 pandemic"
+                }
+            ]
+        },
+        {
+            "type": "FLASHCARD",
+            "questionText": "What does HTTP stand for?",
+            "imagePath": null,
+            "points": 1,
+            "flashcardBackText": "HyperText Transfer Protocol"
+        }
+    ]
+}
