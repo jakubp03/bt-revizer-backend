@@ -10,6 +10,7 @@ application-dev.properties
 /logs
 /docs
 todo.txt
+move_api_doc_to_fe_rep.sh
 
 ### STS ###
 .apt_generated

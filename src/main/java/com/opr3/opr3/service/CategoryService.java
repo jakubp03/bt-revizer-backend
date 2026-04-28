@@ -10,10 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.opr3.opr3.dto.category.CategoryResponse;
 import com.opr3.opr3.dto.category.CreateCategoryRequest;
 import com.opr3.opr3.entity.Category;
+import com.opr3.opr3.entity.Quiz;
 import com.opr3.opr3.entity.User;
 import com.opr3.opr3.exception.InvalidRequestException;
 import com.opr3.opr3.exception.ResourceAlreadyExistsException;
+import com.opr3.opr3.exception.ResourceNotFoundException;
 import com.opr3.opr3.repository.CategoryRepository;
+import com.opr3.opr3.repository.QuizRepository;
 import com.opr3.opr3.service.auth.AuthUtilService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,7 @@ public class CategoryService {
     private static final Logger log = LoggerFactory.getLogger(CategoryService.class);
 
     private final CategoryRepository categoryRepository;
+    private final QuizRepository quizRepository;
     private final AuthUtilService authUtilService;
 
     @Transactional
@@ -48,6 +52,21 @@ public class CategoryService {
                 .build();
 
         Category saved = categoryRepository.save(category);
+
+        if (request.getQuizIds() != null && !request.getQuizIds().isEmpty()) {
+            List<Quiz> quizzes = quizRepository.findAllById(request.getQuizIds());
+            for (Long requestedId : request.getQuizIds()) {
+                boolean found = quizzes.stream().anyMatch(q -> q.getId().equals(requestedId)
+                        && q.getAuthor().getUid().equals(user.getUid()));
+                if (!found) {
+                    throw new ResourceNotFoundException("Quiz not found with ID: " + requestedId);
+                }
+            }
+            for (Quiz quiz : quizzes) {
+                quiz.getCategories().add(saved);
+            }
+            quizRepository.saveAll(quizzes);
+        }
 
         return CategoryResponse.from(saved);
     }
