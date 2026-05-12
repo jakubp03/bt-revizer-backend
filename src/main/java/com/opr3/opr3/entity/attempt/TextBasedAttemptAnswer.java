@@ -17,6 +17,7 @@ import lombok.experimental.SuperBuilder;
 public class TextBasedAttemptAnswer extends AttemptAnswer {
     @Column(columnDefinition = "TEXT")
     private String submittedAnswer;
-    // userMarkedCorrect does NOT need to be persisted —
-    // the service reads it from the DTO and directly sets isAnswerCorrect
+
+    @Column(name = "user_marked_correct")
+    private Boolean userMarkedCorrect;
 }

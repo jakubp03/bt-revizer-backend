@@ -6,7 +6,8 @@
         {
             "questionId": 9,
             "submittedAnswer": "HTTP transfers data between servers and clients.",
-            "userMarkedCorrect": true
+            "userMarkedCorrect": true,
+            "timeSpent": 25
         }
     ],
     "matchBasedAttemptAnswer": []

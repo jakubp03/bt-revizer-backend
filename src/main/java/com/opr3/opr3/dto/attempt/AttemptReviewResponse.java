@@ -51,7 +51,7 @@ public class AttemptReviewResponse {
         private String imagePath;
         private int points;
         private double pointsAwarded;
-        private boolean correct;
+        private double scorePercentage;
         // SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_FALSE
         private List<ChoiceOptionReview> choiceOptions;
         // MATCHING
@@ -109,7 +109,7 @@ public class AttemptReviewResponse {
         private TextReviewType reviewType;
         private String correctAnswer;
         private String userAnswer;
-        private boolean correct;
+        private double scorePercentage;
     }
 
     @Data
@@ -147,7 +147,7 @@ public class AttemptReviewResponse {
 
     private static QuestionReview mapQuestion(Question q, AttemptAnswer answer) {
         double pointsAwarded = answer != null && answer.getPointsAwarded() != null ? answer.getPointsAwarded() : 0;
-        boolean isCorrect = answer != null && Boolean.TRUE.equals(answer.getIsAnswerCorrect());
+        double scorePercentage = answer != null ? answer.getScorePercentage() : 0.0;
 
         QuestionReview.QuestionReviewBuilder builder = QuestionReview.builder()
                 .questionId(q.getId())
@@ -157,7 +157,7 @@ public class AttemptReviewResponse {
                 .imagePath(q.getImagePath())
                 .points(q.getPoints())
                 .pointsAwarded(pointsAwarded)
-                .correct(isCorrect);
+                .scorePercentage(scorePercentage);
 
         switch (q.getType()) {
             case SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_FALSE -> builder.choiceOptions(
@@ -260,18 +260,18 @@ public class AttemptReviewResponse {
         if (answer instanceof TextBasedAttemptAnswer textAnswer) {
             userAnswer = textAnswer.getSubmittedAnswer();
         }
-        boolean isCorrect = answer != null && Boolean.TRUE.equals(answer.getIsAnswerCorrect());
+        double scorePercentage = answer != null ? answer.getScorePercentage() : 0.0;
 
         return TextAnswerReview.builder()
                 .reviewType(q.getTextConfig() != null ? q.getTextConfig().getTextReviewType() : null)
                 .correctAnswer(q.getTextConfig() != null ? q.getTextConfig().getCorrectAnswer() : null)
                 .userAnswer(userAnswer)
-                .correct(isCorrect)
+                .scorePercentage(scorePercentage)
                 .build();
     }
 
     private static FlashcardReview mapFlashcard(Question q, AttemptAnswer answer) {
-        boolean markedCorrect = answer != null && Boolean.TRUE.equals(answer.getIsAnswerCorrect());
+        boolean markedCorrect = answer != null && answer.getScorePercentage() >= 100.0;
 
         return FlashcardReview.builder()
                 .backText(q.getFlashcardConfig() != null ? q.getFlashcardConfig().getBackText() : null)

@@ -52,7 +52,7 @@ public class QuizGradingService {
             };
 
             answer.setPointsAwarded(pointsAwarded);
-            answer.setIsAnswerCorrect(pointsAwarded == question.getPoints());
+            answer.setMaxPoints((double) question.getPoints());
             totalScore += pointsAwarded;
         }
 
@@ -101,7 +101,7 @@ public class QuizGradingService {
         }
 
         if (config.getTextReviewType() == TextReviewType.MANUAL) {
-            return Boolean.TRUE.equals(answer.getIsAnswerCorrect()) ? question.getPoints() : 0;
+            return Boolean.TRUE.equals(answer.getUserMarkedCorrect()) ? question.getPoints() : 0;
         }
 
         // AUTOMATIC review via LLM

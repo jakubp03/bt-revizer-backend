@@ -45,12 +45,9 @@ public class QuizAttempt {
     @JoinColumn(name = "user_uid")
     private User user;
 
-    @Column(name = "started_at", nullable = false)
-    @Builder.Default
-    private LocalDateTime startedAt = LocalDateTime.now();
-
     @Column(name = "submitted_at")
-    private LocalDateTime submittedAt;
+    @Builder.Default
+    private LocalDateTime submittedAt = LocalDateTime.now();
 
     @Column(name = "score")
     private Double score;

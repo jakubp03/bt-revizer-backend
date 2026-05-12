@@ -13,15 +13,18 @@ import com.opr3.opr3.entity.attempt.QuizAttempt;
 @Repository
 public interface QuizAttemptRepository extends JpaRepository<QuizAttempt, Long> {
 
-        List<QuizAttempt> findByQuizIdOrderByStartedAtDesc(Long quizId);
+        List<QuizAttempt> findByQuizIdOrderBySubmittedAtDesc(Long quizId);
 
-        List<QuizAttempt> findByUserUidOrderByStartedAtDesc(String userUid);
+        List<QuizAttempt> findByUserUidOrderBySubmittedAtDesc(String userUid);
 
         Optional<QuizAttempt> findByIdAndUserUid(Long id, String userUid);
 
         long countByQuizIdAndSubmittedAtIsNotNull(Long quizId);
 
         List<QuizAttempt> findByQuizIdAndUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(
+                        Long quizId, String userUid);
+
+        List<QuizAttempt> findByQuizIdAndUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtAsc(
                         Long quizId, String userUid);
 
         Optional<QuizAttempt> findTopByQuizIdAndUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(

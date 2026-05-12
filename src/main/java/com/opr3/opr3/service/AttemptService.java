@@ -7,7 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +21,12 @@ import com.opr3.opr3.dto.attempt.AttemptReviewResponse;
 import com.opr3.opr3.dto.attempt.IdBasedAnswerSubmission;
 import com.opr3.opr3.dto.attempt.MatchBasedAnswerSubmission;
 import com.opr3.opr3.dto.attempt.QuizResultResponse;
+import com.opr3.opr3.dto.attempt.QuizStatsAnswer;
 import com.opr3.opr3.dto.attempt.SubmitQuizRequest;
 import com.opr3.opr3.dto.attempt.TextBasedAnswerSubmission;
 import com.opr3.opr3.entity.Quiz;
 import com.opr3.opr3.entity.User;
+import com.opr3.opr3.entity.attempt.AttemptAnswer;
 import com.opr3.opr3.entity.attempt.IdBasedAttemptAnswer;
 import com.opr3.opr3.entity.attempt.MatchBasedAttemptAnswer;
 import com.opr3.opr3.entity.attempt.MatchedPairEntry;
@@ -87,6 +91,7 @@ public class AttemptService {
                     .selectedOptionIds(sub.getSelectedOptionIds() != null
                             ? new ArrayList<>(sub.getSelectedOptionIds())
                             : new ArrayList<>())
+                    .timeSpent(sub.getTimeSpent())
                     .build();
 
             attempt.getAnswers().add(answer);
@@ -99,7 +104,8 @@ public class AttemptService {
                     .attempt(attempt)
                     .question(question)
                     .submittedAnswer(sub.getSubmittedAnswer())
-                    .isAnswerCorrect(sub.getUserMarkedCorrect())
+                    .userMarkedCorrect(sub.getUserMarkedCorrect())
+                    .timeSpent(sub.getTimeSpent())
                     .build();
 
             attempt.getAnswers().add(answer);
@@ -118,6 +124,7 @@ public class AttemptService {
                     .attempt(attempt)
                     .question(question)
                     .matchedPairs(pairs)
+                    .timeSpent(sub.getTimeSpent())
                     .build();
 
             attempt.getAnswers().add(answer);
@@ -166,6 +173,55 @@ public class AttemptService {
                         "Attempt not found with ID: " + attemptId));
 
         return AttemptReviewResponse.from(attempt);
+    }
+
+    @Transactional(readOnly = true)
+    public QuizStatsAnswer getQuizStatsByQuizId(Long quizId) {
+        User user = authUtilService.getAuthenticatedUser();
+
+        List<QuizAttempt> attempts = quizAttemptRepository
+                .findByQuizIdAndUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtAsc(quizId, user.getUid());
+
+        Integer[] attemptTimes = attempts.stream()
+                .map(QuizAttempt::getTimeSpent)
+                .toArray(Integer[]::new);
+
+        double[] scorePercentages = attempts.stream()
+                .mapToDouble(QuizAttempt::getScorePercentage)
+                .toArray();
+
+        Double previousAttemptScorePercentage = attempts.size() >= 1
+                ? attempts.get(attempts.size() - 1).getScorePercentage()
+                : null;
+
+        Map<Long, List<AttemptAnswer>> answersByQuestion = attempts.stream()
+                .flatMap(a -> a.getAnswers().stream())
+                .collect(Collectors.groupingBy(a -> a.getQuestion().getId()));
+
+        List<QuizStatsAnswer.AttemptAnswerInfo> questionAttempts = answersByQuestion.entrySet().stream()
+                .map(entry -> {
+                    List<AttemptAnswer> answers = entry.getValue();
+
+                    OptionalDouble avgTime = answers.stream()
+                            .filter(a -> a.getTimeSpent() != null)
+                            .mapToInt(AttemptAnswer::getTimeSpent)
+                            .average();
+
+                    double avgScore = answers.stream()
+                            .mapToDouble(AttemptAnswer::getScorePercentage)
+                            .average()
+                            .orElse(0.0);
+
+                    return QuizStatsAnswer.AttemptAnswerInfo.builder()
+                            .questionId(entry.getKey())
+                            .averageQuestionAttemptTime(
+                                    avgTime.isPresent() ? (int) Math.round(avgTime.getAsDouble()) : null)
+                            .averageQuestionScorePercentage(avgScore)
+                            .build();
+                })
+                .toList();
+
+        return new QuizStatsAnswer(attemptTimes, scorePercentages, previousAttemptScorePercentage, questionAttempts);
     }
 
     private <T> List<T> safeList(List<T> list) {

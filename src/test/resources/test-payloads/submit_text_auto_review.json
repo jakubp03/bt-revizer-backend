@@ -6,7 +6,8 @@
         {
             "questionId": 8,
             "submittedAnswer": "H2O",
-            "userMarkedCorrect": true
+            "userMarkedCorrect": true,
+            "timeSpent": 20
         }
     ],
     "matchBasedAttemptAnswer": []

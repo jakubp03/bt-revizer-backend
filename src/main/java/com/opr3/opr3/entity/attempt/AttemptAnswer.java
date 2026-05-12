@@ -42,9 +42,18 @@ public abstract class AttemptAnswer {
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 
-    @Column(name = "is_correct")
-    private Boolean isAnswerCorrect;
+    @Column(name = "max_points")
+    private Double maxPoints;
+
+    @Column(name = "time_spent")
+    private Integer timeSpent;
 
     @Column(name = "points_awarded")
     private Double pointsAwarded;
+
+    public double getScorePercentage() {
+        return (pointsAwarded != null && maxPoints != null && maxPoints > 0)
+                ? (pointsAwarded / maxPoints) * 100.0
+                : 0.0;
+    }
 }

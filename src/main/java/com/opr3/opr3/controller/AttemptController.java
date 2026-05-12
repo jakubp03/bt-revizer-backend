@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.opr3.opr3.dto.attempt.AttemptBasicResponse;
 import com.opr3.opr3.dto.attempt.AttemptReviewResponse;
 import com.opr3.opr3.dto.attempt.QuizResultResponse;
+import com.opr3.opr3.dto.attempt.QuizStatsAnswer;
 import com.opr3.opr3.dto.attempt.SubmitQuizRequest;
 import com.opr3.opr3.service.AttemptService;
 
@@ -50,4 +51,12 @@ public class AttemptController {
         log.info("[200] returning review for attempt {}", attemptId);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/statistics/byQuizId/{quizId}")
+    public ResponseEntity<QuizStatsAnswer> getQuizStatsByQuizId(@PathVariable Long quizId) {
+        QuizStatsAnswer result = attemptService.getQuizStatsByQuizId(quizId);
+        log.info("[200] returning stats for quiz {}", quizId);
+        return ResponseEntity.ok(result);
+    }
+
 }

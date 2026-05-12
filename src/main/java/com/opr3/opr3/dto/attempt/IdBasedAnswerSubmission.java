@@ -16,4 +16,6 @@ public class IdBasedAnswerSubmission {
     private Long questionId;
 
     private List<Long> selectedOptionIds;
+
+    private Integer timeSpent;
 }

@@ -15,4 +15,6 @@ public class TextBasedAnswerSubmission {
     private String submittedAnswer;
 
     private Boolean userMarkedCorrect;
+
+    private Integer timeSpent;
 }

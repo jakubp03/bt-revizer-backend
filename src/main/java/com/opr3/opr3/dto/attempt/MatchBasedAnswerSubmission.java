@@ -18,4 +18,6 @@ public class MatchBasedAnswerSubmission {
     private Long questionId;
 
     private List<MatchedPairEntry> matchedPairs;
+
+    private Integer timeSpent;
 }

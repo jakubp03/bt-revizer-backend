@@ -6,19 +6,22 @@
             "questionId": 1,
             "selectedOptionIds": [
                 2
-            ]
+            ],
+            "timeSpent": 8
         },
         {
             "questionId": 2,
             "selectedOptionIds": [
                 7
-            ]
+            ],
+            "timeSpent": 12
         },
         {
             "questionId": 3,
             "selectedOptionIds": [
                 10
-            ]
+            ],
+            "timeSpent": 5
         },
         {
             "questionId": 6,
@@ -27,18 +30,21 @@
                 3,
                 2,
                 1
-            ]
+            ],
+            "timeSpent": 10
         },
         {
             "questionId": 7,
-            "selectedOptionIds": []
+            "selectedOptionIds": [],
+            "timeSpent": 6
         }
     ],
     "textBasedAnswers": [
         {
             "questionId": 4,
             "submittedAnswer": "I don't know",
-            "userMarkedCorrect": false
+            "userMarkedCorrect": false,
+            "timeSpent": 10
         }
     ],
     "matchBasedAttemptAnswer": [
@@ -57,7 +63,8 @@
                     "leftId": 3,
                     "rightId": 1
                 }
-            ]
+            ],
+            "timeSpent": 15
         }
     ]
 }

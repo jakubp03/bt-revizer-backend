@@ -89,8 +89,6 @@ public class QuizService {
                         "Quiz not found with ID: " + quizId));
 
         QuizDetailedResponse result = QuizDetailedResponse.from(quiz);
-        result.setPreviousAttemptScorePercentage(getPreviousAttemptScorePercentage(quiz.getId()));
-        result.setAverageScorePercentage(quizAttemptRepository.findAverageScorePercentageByQuizId(quiz.getId()));
         result = shuffleQuestionOptions(result);
         return result;
     }

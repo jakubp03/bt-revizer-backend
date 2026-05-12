@@ -33,8 +33,6 @@ public class QuizDetailedResponse {
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         private String icon;
-        private Double previousAttemptScorePercentage;
-        private Double averageScorePercentage;
 
         @Data
         @Builder
