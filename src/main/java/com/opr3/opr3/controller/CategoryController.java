@@ -28,9 +28,9 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> createCategory(@RequestBody CreateCategoryRequest request) {
-        CategoryResponse response = categoryService.createCategory(request);
-        log.info("[201] created category ID: {}", response.getId());
+    public ResponseEntity<Long> createCategory(@RequestBody CreateCategoryRequest request) {
+        Long response = categoryService.createCategory(request);
+        log.info("[201] created category ID: {}", response);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

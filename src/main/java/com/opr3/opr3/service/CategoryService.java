@@ -32,7 +32,7 @@ public class CategoryService {
     private final AuthUtilService authUtilService;
 
     @Transactional
-    public CategoryResponse createCategory(CreateCategoryRequest request) {
+    public Long createCategory(CreateCategoryRequest request) {
         User user = authUtilService.getAuthenticatedUser();
 
         if (request.getName() == null || request.getName().isBlank()) {
@@ -68,7 +68,7 @@ public class CategoryService {
             quizRepository.saveAll(quizzes);
         }
 
-        return CategoryResponse.from(saved);
+        return saved.getId();
     }
 
     @Transactional(readOnly = true)
