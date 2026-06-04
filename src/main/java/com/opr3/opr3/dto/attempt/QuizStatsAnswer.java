@@ -23,7 +23,14 @@ public class QuizStatsAnswer {
     @AllArgsConstructor
     public static class AttemptAnswerInfo {
         private Long questionId;
-        private Integer averageQuestionAttemptTime;
-        private double averageQuestionScorePercentage;
+
+        private Integer minQuestionAttemptTime;
+        private Integer q1QuestionAttemptTime;
+        private Integer medQuestionAttemptTime;
+        private Integer q3QuestionAttemptTime;
+        private Integer maxQuestionAttemptTime;
+        private Integer[] outliers;
+
+        private double medQuestionScorePercentage;
     }
 }
