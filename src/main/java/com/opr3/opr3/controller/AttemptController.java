@@ -38,6 +38,13 @@ public class AttemptController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/byQuiz/{quizId}/all")
+    public ResponseEntity<List<AttemptBasicResponse>> getAllAttemptsByQuizId(@PathVariable Long quizId) {
+        List<AttemptBasicResponse> result = attemptService.getAllAttemptsByQuizId(quizId);
+        log.info("[200] returning all attempts for quiz {}", quizId);
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/byQuiz/{quizId}")
     public ResponseEntity<List<AttemptBasicResponse>> getAttemptsByQuizId(@PathVariable Long quizId) {
         List<AttemptBasicResponse> result = attemptService.getAttemptsByQuizId(quizId);

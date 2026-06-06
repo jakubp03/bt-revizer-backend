@@ -157,6 +157,15 @@ public class AttemptService {
         }
 
         @Transactional(readOnly = true)
+        public List<AttemptBasicResponse> getAllAttemptsByQuizId(Long quizId) {
+                return quizAttemptRepository
+                                .findByQuizIdAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(quizId)
+                                .stream()
+                                .map(AttemptBasicResponse::from)
+                                .toList();
+        }
+
+        @Transactional(readOnly = true)
         public List<AttemptBasicResponse> getAttemptsByQuizId(Long quizId) {
                 User user = authUtilService.getAuthenticatedUser();
                 return quizAttemptRepository
