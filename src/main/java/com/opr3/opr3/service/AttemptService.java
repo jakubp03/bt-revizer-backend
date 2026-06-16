@@ -14,11 +14,14 @@ import java.util.stream.Collectors;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.opr3.opr3.dto.attempt.AttemptBasicResponse;
 import com.opr3.opr3.dto.attempt.AttemptReviewResponse;
+import com.opr3.opr3.dto.attempt.AttemptSummaryResponse;
 import com.opr3.opr3.dto.attempt.IdBasedAnswerSubmission;
 import com.opr3.opr3.dto.attempt.MatchBasedAnswerSubmission;
 import com.opr3.opr3.dto.attempt.QuestionAttemptTimeInfo;
@@ -154,6 +157,14 @@ public class AttemptService {
                                 .previousAttemptScorePercentage(previousScorePercentage)
                                 .averageScorePercentage(averageScore != null ? averageScore : scorePercentage)
                                 .build();
+        }
+
+        @Transactional(readOnly = true)
+        public Page<AttemptSummaryResponse> getAllAttempts(Pageable pageable) {
+                User user = authUtilService.getAuthenticatedUser();
+                return quizAttemptRepository
+                                .findByUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(user.getUid(), pageable)
+                                .map(AttemptSummaryResponse::from);
         }
 
         @Transactional(readOnly = true)

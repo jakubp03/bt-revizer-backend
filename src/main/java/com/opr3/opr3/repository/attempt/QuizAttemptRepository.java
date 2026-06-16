@@ -3,6 +3,8 @@ package com.opr3.opr3.repository.attempt;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,6 +33,9 @@ public interface QuizAttemptRepository extends JpaRepository<QuizAttempt, Long> 
 
         Optional<QuizAttempt> findTopByQuizIdAndUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(
                         Long quizId, String userUid);
+
+        Page<QuizAttempt> findByUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(
+                        String userUid, Pageable pageable);
 
         @Query("SELECT AVG(ta.score / ta.maxScore * 100) FROM QuizAttempt ta " +
                         "WHERE ta.quiz.id = :quizId AND ta.submittedAt IS NOT NULL AND ta.maxScore > 0")
