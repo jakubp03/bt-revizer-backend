@@ -1,14 +1,19 @@
 package com.opr3.opr3.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -22,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.opr3.opr3.dto.attempt.AttemptBasicResponse;
 import com.opr3.opr3.dto.attempt.AttemptReviewResponse;
 import com.opr3.opr3.dto.attempt.AttemptSummaryResponse;
+import com.opr3.opr3.dto.attempt.DashboardResponse;
 import com.opr3.opr3.dto.attempt.IdBasedAnswerSubmission;
 import com.opr3.opr3.dto.attempt.MatchBasedAnswerSubmission;
 import com.opr3.opr3.dto.attempt.QuestionAttemptTimeInfo;
@@ -29,6 +35,7 @@ import com.opr3.opr3.dto.attempt.QuizResultResponse;
 import com.opr3.opr3.dto.attempt.QuizStatsAnswer;
 import com.opr3.opr3.dto.attempt.SubmitQuizRequest;
 import com.opr3.opr3.dto.attempt.TextBasedAnswerSubmission;
+import com.opr3.opr3.dto.quiz.QuizBasicResponse;
 import com.opr3.opr3.entity.Quiz;
 import com.opr3.opr3.entity.User;
 import com.opr3.opr3.entity.attempt.AttemptAnswer;
@@ -259,6 +266,57 @@ public class AttemptService {
 
                 return new QuizStatsAnswer(attemptTimes, scorePercentages, previousAttemptScorePercentage,
                                 questionAttempts);
+        }
+
+        @Transactional(readOnly = true)
+        public DashboardResponse getDashboard() {
+                User user = authUtilService.getAuthenticatedUser();
+
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime weekStart = now.minusDays(7);
+                LocalDateTime monthStart = now.toLocalDate().withDayOfMonth(1).atStartOfDay();
+
+                List<QuizAttempt> weekAttempts = quizAttemptRepository
+                                .findSubmittedByUserAndDateRange(user.getUid(), weekStart, now);
+
+                int submittedCount = weekAttempts.size();
+
+                int totalTimeSpent = weekAttempts.stream()
+                                .map(QuizAttempt::getTimeSpent)
+                                .filter(Objects::nonNull)
+                                .mapToInt(Integer::intValue)
+                                .sum();
+
+                OptionalDouble avgOpt = weekAttempts.stream()
+                                .mapToDouble(QuizAttempt::getScorePercentage)
+                                .average();
+                Double averageScorePercentage = avgOpt.isPresent() ? avgOpt.getAsDouble() : null;
+
+                Set<Long> seenIds = new LinkedHashSet<>();
+                List<QuizBasicResponse> recentQuizzes = weekAttempts.stream()
+                                .map(QuizAttempt::getQuiz)
+                                .filter(q -> seenIds.add(q.getId()))
+                                .limit(5)
+                                .map(QuizBasicResponse::from)
+                                .toList();
+
+                List<QuizAttempt> monthAttempts = quizAttemptRepository
+                                .findSubmittedByUserAndDateRange(user.getUid(), monthStart, now);
+
+                Map<LocalDate, Integer> monthlyActivity = monthAttempts.stream()
+                                .collect(Collectors.groupingBy(
+                                                a -> a.getSubmittedAt().toLocalDate(),
+                                                TreeMap::new,
+                                                Collectors.collectingAndThen(Collectors.counting(),
+                                                                Long::intValue)));
+
+                return DashboardResponse.builder()
+                                .totalTimeSpent(totalTimeSpent)
+                                .submittedQuizzesCount(submittedCount)
+                                .averageScorePercentage(averageScorePercentage)
+                                .recentQuizzes(recentQuizzes)
+                                .monthlyActivity(monthlyActivity)
+                                .build();
         }
 
         private <T> List<T> safeList(List<T> list) {

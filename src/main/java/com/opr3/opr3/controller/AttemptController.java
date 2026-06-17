@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.opr3.opr3.dto.attempt.AttemptBasicResponse;
 import com.opr3.opr3.dto.attempt.AttemptReviewResponse;
 import com.opr3.opr3.dto.attempt.AttemptSummaryResponse;
+import com.opr3.opr3.dto.attempt.DashboardResponse;
 import com.opr3.opr3.dto.attempt.QuizResultResponse;
 import com.opr3.opr3.dto.attempt.QuizStatsAnswer;
 import com.opr3.opr3.dto.attempt.SubmitQuizRequest;
@@ -75,6 +76,13 @@ public class AttemptController {
     public ResponseEntity<QuizStatsAnswer> getQuizStatsByQuizId(@PathVariable Long quizId) {
         QuizStatsAnswer result = attemptService.getQuizStatsByQuizId(quizId);
         log.info("[200] returning stats for quiz {}", quizId);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<DashboardResponse> getDashboard() {
+        DashboardResponse result = attemptService.getDashboard();
+        log.info("[200] returning dashboard stats for current user");
         return ResponseEntity.ok(result);
     }
 

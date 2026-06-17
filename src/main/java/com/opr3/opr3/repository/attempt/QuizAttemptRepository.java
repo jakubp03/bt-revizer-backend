@@ -1,5 +1,6 @@
 package com.opr3.opr3.repository.attempt;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,4 +41,15 @@ public interface QuizAttemptRepository extends JpaRepository<QuizAttempt, Long> 
         @Query("SELECT AVG(ta.score / ta.maxScore * 100) FROM QuizAttempt ta " +
                         "WHERE ta.quiz.id = :quizId AND ta.submittedAt IS NOT NULL AND ta.maxScore > 0")
         Double findAverageScorePercentageByQuizId(@Param("quizId") Long quizId);
+
+        @Query("SELECT qa FROM QuizAttempt qa " +
+                        "WHERE qa.user.uid = :userUid " +
+                        "AND qa.submittedAt IS NOT NULL " +
+                        "AND qa.submittedAt >= :from " +
+                        "AND qa.submittedAt <= :to " +
+                        "ORDER BY qa.submittedAt DESC")
+        List<QuizAttempt> findSubmittedByUserAndDateRange(
+                        @Param("userUid") String userUid,
+                        @Param("from") LocalDateTime from,
+                        @Param("to") LocalDateTime to);
 }
