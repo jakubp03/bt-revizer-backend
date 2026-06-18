@@ -31,6 +31,7 @@ public class QuizDetailedResponse {
         private Set<CategoryInfo> categories;
         private List<QuestionInfo> questions;
         private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
         private String icon;
 
         @Data
@@ -123,6 +124,7 @@ public class QuizDetailedResponse {
                                                 .map(QuizDetailedResponse::mapQuestion)
                                                 .collect(Collectors.toList()))
                                 .createdAt(quiz.getCreatedAt())
+                                .updatedAt(quiz.getUpdatedAt())
                                 .build();
         }
 

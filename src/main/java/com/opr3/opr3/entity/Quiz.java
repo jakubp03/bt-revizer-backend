@@ -61,6 +61,10 @@ public class Quiz {
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "updated_at", nullable = false)
+    @Builder.Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
     @ManyToMany
     @JoinTable(name = "quiz_category", joinColumns = @JoinColumn(name = "quiz_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     @Builder.Default
