@@ -261,8 +261,10 @@ public class AttemptService {
                                                         .maxQuestionAttemptTime(
                                                                         questionInfo.getMaxQuestionAttemptTime())
                                                         .outliers(questionInfo.getOutliers())
-                                                        .medQuestionScorePercentage(
-                                                                        questionScoreStats.getPercentile(50))
+                                                        .avgQuestionScorePercentage(
+                                                                        questionScoreStats.getN() > 0
+                                                                                        ? (double) Math.round(questionScoreStats.getMean())
+                                                                                        : 0.0)
                                                         .build();
                                 })
                                 .toList();

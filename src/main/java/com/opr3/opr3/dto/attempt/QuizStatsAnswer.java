@@ -31,6 +31,6 @@ public class QuizStatsAnswer {
         private Integer maxQuestionAttemptTime;
         private Integer[] outliers;
 
-        private double medQuestionScorePercentage;
+        private double avgQuestionScorePercentage;
     }
 }
