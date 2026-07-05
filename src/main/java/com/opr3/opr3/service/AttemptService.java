@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.opr3.opr3.dto.attempt.AttemptBasicResponse;
 import com.opr3.opr3.dto.attempt.AttemptReviewResponse;
 import com.opr3.opr3.dto.attempt.AttemptSummaryResponse;
+import com.opr3.opr3.dto.attempt.CategoryStatsResponse;
 import com.opr3.opr3.dto.attempt.DashboardResponse;
 import com.opr3.opr3.dto.attempt.IdBasedAnswerSubmission;
 import com.opr3.opr3.dto.attempt.MatchBasedAnswerSubmission;
@@ -48,6 +49,7 @@ import com.opr3.opr3.entity.question.Question;
 import com.opr3.opr3.enums.QuestionType;
 import com.opr3.opr3.exception.InvalidRequestException;
 import com.opr3.opr3.exception.ResourceNotFoundException;
+import com.opr3.opr3.repository.CategoryRepository;
 import com.opr3.opr3.repository.QuizRepository;
 import com.opr3.opr3.repository.attempt.QuizAttemptRepository;
 import com.opr3.opr3.service.auth.AuthUtilService;
@@ -65,6 +67,7 @@ public class AttemptService {
         private final QuizAttemptRepository quizAttemptRepository;
         private final QuizGradingService quizGradingService;
         private final AuthUtilService authUtilService;
+        private final CategoryRepository categoryRepository;
 
         @Transactional
         public QuizResultResponse processQuiz(SubmitQuizRequest request) {
@@ -266,6 +269,44 @@ public class AttemptService {
 
                 return new QuizStatsAnswer(attemptTimes, scorePercentages, previousAttemptScorePercentage,
                                 questionAttempts);
+        }
+
+        @Transactional(readOnly = true)
+        public CategoryStatsResponse getCategoryStatsByCategoryId(Long categoryId) {
+                User user = authUtilService.getAuthenticatedUser();
+
+                categoryRepository.findByIdAndUserUid(categoryId, user.getUid())
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Category not found with ID: " + categoryId));
+
+                List<QuizAttempt> attempts = quizAttemptRepository
+                                .findByCategoryIdAndUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtAsc(
+                                                categoryId, user.getUid());
+
+                Integer[] attemptTimes = attempts.stream()
+                                .map(QuizAttempt::getTimeSpent)
+                                .toArray(Integer[]::new);
+
+                double[] scorePercentages = attempts.stream()
+                                .mapToDouble(QuizAttempt::getScorePercentage)
+                                .toArray();
+
+                DescriptiveStatistics scoreStats = new DescriptiveStatistics(scorePercentages);
+
+                double[] validTimes = attempts.stream()
+                                .map(QuizAttempt::getTimeSpent)
+                                .filter(Objects::nonNull)
+                                .mapToDouble(Integer::doubleValue)
+                                .toArray();
+                DescriptiveStatistics timeStats = new DescriptiveStatistics(validTimes);
+
+                Double averageScorePercentage = scoreStats.getN() > 0 ? scoreStats.getMean() : null;
+                Double medianScorePercentage = scoreStats.getN() > 0 ? scoreStats.getPercentile(50) : null;
+                Double averageAttemptTime = timeStats.getN() > 0 ? timeStats.getMean() : null;
+                Double medianAttemptTime = timeStats.getN() > 0 ? timeStats.getPercentile(50) : null;
+
+                return new CategoryStatsResponse(attemptTimes, scorePercentages, averageScorePercentage,
+                                medianScorePercentage, averageAttemptTime, medianAttemptTime);
         }
 
         @Transactional(readOnly = true)

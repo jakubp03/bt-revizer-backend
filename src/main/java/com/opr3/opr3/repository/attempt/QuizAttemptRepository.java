@@ -52,4 +52,14 @@ public interface QuizAttemptRepository extends JpaRepository<QuizAttempt, Long> 
                         @Param("userUid") String userUid,
                         @Param("from") LocalDateTime from,
                         @Param("to") LocalDateTime to);
+
+        @Query("SELECT qa FROM QuizAttempt qa " +
+                        "JOIN qa.quiz.categories c " +
+                        "WHERE c.id = :categoryId " +
+                        "AND qa.user.uid = :userUid " +
+                        "AND qa.submittedAt IS NOT NULL " +
+                        "ORDER BY qa.submittedAt ASC")
+        List<QuizAttempt> findByCategoryIdAndUserUidAndSubmittedAtIsNotNullOrderBySubmittedAtAsc(
+                        @Param("categoryId") Long categoryId,
+                        @Param("userUid") String userUid);
 }
