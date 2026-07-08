@@ -11,6 +11,7 @@ application-dev.properties
 /docs
 todo.txt
 /local_dev_util
+/uploads
 
 ### STS ###
 .apt_generated

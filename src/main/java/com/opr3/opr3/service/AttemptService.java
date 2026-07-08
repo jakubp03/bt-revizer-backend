@@ -263,7 +263,9 @@ public class AttemptService {
                                                         .outliers(questionInfo.getOutliers())
                                                         .avgQuestionScorePercentage(
                                                                         questionScoreStats.getN() > 0
-                                                                                        ? (double) Math.round(questionScoreStats.getMean())
+                                                                                        ? (double) Math.round(
+                                                                                                        questionScoreStats
+                                                                                                                        .getMean())
                                                                                         : 0.0)
                                                         .build();
                                 })
@@ -339,7 +341,7 @@ public class AttemptService {
                 List<QuizBasicResponse> recentQuizzes = weekAttempts.stream()
                                 .map(QuizAttempt::getQuiz)
                                 .filter(q -> seenIds.add(q.getId()))
-                                .limit(5)
+                                .limit(4)
                                 .map(QuizBasicResponse::from)
                                 .toList();
 
