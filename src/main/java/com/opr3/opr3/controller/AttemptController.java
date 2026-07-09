@@ -53,35 +53,36 @@ public class AttemptController {
     }
 
     @GetMapping("/byQuiz/{quizId}/all")
-    public ResponseEntity<List<AttemptBasicResponse>> getAllAttemptsByQuizId(@PathVariable Long quizId) {
+    public ResponseEntity<List<AttemptBasicResponse>> getAllAttemptsByQuizId(@PathVariable("quizId") Long quizId) {
         List<AttemptBasicResponse> result = attemptService.getAllAttemptsByQuizId(quizId);
         log.info("[200] returning all attempts for quiz {}", quizId);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/byQuiz/{quizId}")
-    public ResponseEntity<List<AttemptBasicResponse>> getAttemptsByQuizId(@PathVariable Long quizId) {
+    public ResponseEntity<List<AttemptBasicResponse>> getAttemptsByQuizId(@PathVariable("quizId") Long quizId) {
         List<AttemptBasicResponse> result = attemptService.getAttemptsByQuizId(quizId);
         log.info("[200] returning attempts for quiz {}", quizId);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{attemptId}/review")
-    public ResponseEntity<AttemptReviewResponse> getAttemptReview(@PathVariable Long attemptId) {
+    public ResponseEntity<AttemptReviewResponse> getAttemptReview(@PathVariable("attemptId") Long attemptId) {
         AttemptReviewResponse result = attemptService.getAttemptReview(attemptId);
         log.info("[200] returning review for attempt {}", attemptId);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/statistics/byQuizId/{quizId}")
-    public ResponseEntity<QuizStatsAnswer> getQuizStatsByQuizId(@PathVariable Long quizId) {
+    public ResponseEntity<QuizStatsAnswer> getQuizStatsByQuizId(@PathVariable("quizId") Long quizId) {
         QuizStatsAnswer result = attemptService.getQuizStatsByQuizId(quizId);
         log.info("[200] returning stats for quiz {}", quizId);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/statistics/byCategory/{categoryId}")
-    public ResponseEntity<CategoryStatsResponse> getCategoryStatsByCategoryId(@PathVariable Long categoryId) {
+    public ResponseEntity<CategoryStatsResponse> getCategoryStatsByCategoryId(
+            @PathVariable("categoryId") Long categoryId) {
         CategoryStatsResponse result = attemptService.getCategoryStatsByCategoryId(categoryId);
         log.info("[200] returning stats for category {}", categoryId);
         return ResponseEntity.ok(result);

@@ -37,7 +37,7 @@ public class ImageController {
     }
 
     @GetMapping("/{filename}")
-    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
+    public ResponseEntity<Resource> getImage(@PathVariable("filename") String filename) {
         Resource resource = imageService.load(filename);
         String contentType = imageService.resolveContentType(filename);
         log.info("[200] serving image '{}'", filename);
