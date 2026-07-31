@@ -100,15 +100,19 @@ public class QuizGradingService {
             return 0;
         }
 
+        String userAnswer = answer.getSubmittedAnswer();
+        if (userAnswer == null || userAnswer.isBlank()) {
+            return 0;
+        }
+
         if (config.getTextReviewType() == TextReviewType.MANUAL) {
             return Boolean.TRUE.equals(answer.getUserMarkedCorrect()) ? question.getPoints() : 0;
         }
 
         // AUTOMATIC review via LLM
         String correctAnswer = config.getCorrectAnswer();
-        String userAnswer = answer.getSubmittedAnswer();
-        if (correctAnswer == null || userAnswer == null) {
-            log.warn("[Grading] TEXT_INPUT questionId={} skipped LLM check — correctAnswer or userAnswer is null",
+        if (correctAnswer == null) {
+            log.warn("[Grading] TEXT_INPUT questionId={} skipped LLM check — correctAnswer is null",
                     answer.getQuestion().getId());
             return 0;
         }

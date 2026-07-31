@@ -414,37 +414,32 @@ public class AttemptService {
 
         private void validateIdBasedAnswer(IdBasedAnswerSubmission answer, Question question) {
                 QuestionType type = question.getType();
-                boolean hasOptions = answer.getSelectedOptionIds() != null && !answer.getSelectedOptionIds().isEmpty();
+                List<Long> selectedOptionIds = answer.getSelectedOptionIds();
+
+                if (selectedOptionIds == null) {
+                        throw new InvalidRequestException(
+                                        "Question " + question.getId() + " (" + type
+                                                        + ") requires selectedOptionIds");
+                }
+
+                boolean hasOptions = !selectedOptionIds.isEmpty();
 
                 switch (type) {
                         case SINGLE_CHOICE, TRUE_FALSE -> {
-                                if (!hasOptions) {
-                                        throw new InvalidRequestException(
-                                                        "Question " + question.getId() + " (" + type
-                                                                        + ") requires a selected option");
-                                }
-                                if (answer.getSelectedOptionIds().size() != 1) {
+                                if (hasOptions && selectedOptionIds.size() != 1) {
                                         throw new InvalidRequestException(
                                                         "Question " + question.getId() + " (" + type
                                                                         + ") requires exactly one selected option");
                                 }
                         }
                         case MULTIPLE_CHOICE -> {
-                                if (!hasOptions) {
-                                        throw new InvalidRequestException(
-                                                        "Question " + question.getId()
-                                                                        + " (MULTIPLE_CHOICE) requires at least one selected option");
-                                }
+                                // empty list means the question was skipped
                         }
                         case ORDERING -> {
-                                if (!hasOptions) {
-                                        throw new InvalidRequestException(
-                                                        "Question " + question.getId()
-                                                                        + " (ORDERING) requires ordered option IDs");
-                                }
+                                // empty list means the question was skipped
                         }
                         case FLASHCARD -> {
-                                // flashcard is self-evaluated; selectedOptionIds may or may not be present
+                                // flashcard is self-evaluated; empty list means the question was skipped
                         }
                         default -> throw new InvalidRequestException(
                                         "Question " + question.getId() + " (" + type
@@ -458,9 +453,9 @@ public class AttemptService {
                                         "Question " + question.getId() + " (" + question.getType()
                                                         + ") should not be in textBasedAnswers");
                 }
-                if (answer.getSubmittedAnswer() == null || answer.getSubmittedAnswer().isBlank()) {
+                if (answer.getSubmittedAnswer() == null) {
                         throw new InvalidRequestException(
-                                        "Question " + question.getId() + " (TEXT_INPUT) requires a text answer");
+                                        "Question " + question.getId() + " (TEXT_INPUT) requires submittedAnswer");
                 }
         }
 
