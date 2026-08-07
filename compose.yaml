@@ -2,29 +2,81 @@ services:
   backend:
     build:
       context: .
+      dockerfile: Dockerfile
     env_file:
       - .env
     environment:
       SPRING_PROFILES_ACTIVE: docker
       DOCKER_PROFILE: docker_prod
-      DB_URL: ${DB_URL}
+      DB_URL: ${DB_URL:-jdbc:mysql://db:3306/bt_revizer}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: chatapp
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bt_revizer}
       APPLICATION_SECURITY_JWT_SECRETKEY: ${JWT_SECRET_KEY}
       APPLICATION_SECURITY_JWT_EXPIRATION: ${JWT_EXPIRATION}
       APPLICATION_SECURITY_JWT_REFRESHTOKEN_EXPIRATION: ${JWT_REFRESH_EXPIRATION}
-      APPLICATION_CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      APPLICATION_CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost,http://127.0.0.1,http://localhost:5173,http://127.0.0.1:5173,https://localhost,https://127.0.0.1,http://revizer.site,https://revizer.site}
+      APP_UPLOAD_DIR: ${APP_UPLOAD_DIR:-/uploads}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
     user: "${UID:-1000}:${GID:-1000}"
     networks:
       - spring-mysql
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "${BACKEND_PORT}:8080"
+      ollama:
+        condition: service_started
+      ollama-init:
+        condition: service_completed_successfully
+    expose:
+      - "8080"
     volumes:
       - ./logs:/logs
+      - ./uploads:/uploads
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../bt-revizer-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME:-localhost}
+      SSL_CERT_PATH: /etc/nginx/certs/fullchain.pem
+      SSL_KEY_PATH: /etc/nginx/certs/privkey.pem
+      CERT_WATCH_INTERVAL_SECONDS: ${CERT_WATCH_INTERVAL_SECONDS:-300}
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - spring-mysql
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+      - "${FRONTEND_HTTPS_PORT:-443}:443"
+    volumes:
+      - frontend-certs:/etc/nginx/certs
+      - certbot-www:/var/www/certbot
+      - letsencrypt-data:/etc/letsencrypt:ro
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot:latest
+    depends_on:
+      frontend:
+        condition: service_started
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME:-localhost}
+      CERTBOT_EMAIL: ${CERTBOT_EMAIL}
+      CERTBOT_STAGING: ${CERTBOT_STAGING:-0}
+    entrypoint: ["/bin/sh", "/opt/certbot/certbot-loop.sh"]
+    volumes:
+      - certbot-www:/var/www/certbot
+      - letsencrypt-data:/etc/letsencrypt
+      - frontend-certs:/shared-certs
+      - ./docker/certbot-loop.sh:/opt/certbot/certbot-loop.sh:ro
+    restart: unless-stopped
 
   db:
     image: mysql:8.0
@@ -33,21 +85,51 @@ services:
       - .env
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: projectTracker
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bt_revizer}
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent",
+        ]
       interval: 10s
-      retries: 5
-      start_period: 30s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
     volumes:
       - db-data:/var/lib/mysql
     networks:
       - spring-mysql
-    ports:
-      - "${DB_PORT}:3306"
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - spring-mysql
+    restart: unless-stopped
+
+  ollama-init:
+    image: ollama/ollama:latest
+    depends_on:
+      ollama:
+        condition: service_started
+    environment:
+      OLLAMA_HOST: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
+    entrypoint: ["ollama"]
+    command: ["pull", "${OLLAMA_MODEL:-llama3.1:8b}"]
+    networks:
+      - spring-mysql
+    restart: "no"
 
 volumes:
   db-data: {}
+  certbot-www: {}
+  frontend-certs: {}
+  letsencrypt-data: {}
+  ollama-data: {}
 
 networks:
   spring-mysql: {}
