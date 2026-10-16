@@ -4,6 +4,10 @@ Spring Boot REST API for BT Revizer, a quiz and active-recall application. The b
 
 The frontend is maintained in a separate repository: [bt-revizer-frontend](https://github.com/jakubp03/bt-revizer-frontend).
 
+## Architecture Diagram Of The Whole App
+
+![BT Revizer architecture diagram](docs/architecture%20diagram.png)
+
 ## Technology
 
 - Java 21
@@ -54,7 +58,26 @@ Ollama is needed for automatic review of `TEXT_INPUT` questions configured for a
 ollama pull llama3.1:8b
 ```
 
-The backend defaults to `http://localhost:11434` and model `llama3.1:8b`. To use a different model or Ollama host, set `OLLAMA_MODEL` or `OLLAMA_BASE_URL` in the backend process environment. Ollama is optional for other application features, but automatic LLM grading will not work without it.
+The backend defaults to `http://localhost:11434` and model `llama3.1:8b`. Ollama is optional for other application features, but automatic LLM grading will not work without it.
+
+#### Change the LLM model
+
+`src/main/resources/application.properties` sets the default model with `spring.ai.ollama.chat.options.model=${OLLAMA_MODEL:llama3.1:8b}`. To use another Ollama model locally, first pull that model, then set `OLLAMA_MODEL` in the environment used to launch Spring Boot:
+
+```sh
+ollama pull <model-name>
+OLLAMA_MODEL=<model-name> ./mvnw spring-boot:run
+```
+
+Alternatively, change the fallback value `llama3.1:8b` in `application.properties`. The environment variable takes precedence over that fallback. If Ollama is running at a non-default address, set `OLLAMA_BASE_URL` as well; the default is `http://localhost:11434`.
+
+For Docker Compose, change `OLLAMA_MODEL` in the backend `.env` file. Compose passes it to both the backend and the `ollama-init` service, which pulls the selected model into the persistent `ollama-data` volume. Recreate the stack after changing the value so the init service pulls it:
+
+```sh
+docker compose up --build -d
+```
+
+The Compose default Ollama address is `http://ollama:11434`; use the service hostname `ollama` rather than `localhost` for containers on the Compose network.
 
 ### 4. Run the backend
 
@@ -143,7 +166,7 @@ docker compose down
 
 ## API
 
-The API base path is `/api/v1`. Authentication and application endpoints are implemented under `/auth`, `/quiz`, `/category`, and `/attempt`. Most application endpoints require a valid JWT access token in the `Authorization: Bearer <token>` header.
+The API base path is `/api/v1`. Authentication and application endpoints are implemented under `/auth`, `/quiz`, `/category`, `/attempt`, and `/images`. Most application endpoints require a valid JWT access token in the `Authorization: Bearer <token>` header. The [full API documentation](docs/api-doc.md) describes the endpoints, request and response formats, and error responses.
 
 ## Configuration Reference
 
@@ -151,3 +174,5 @@ The API base path is `/api/v1`. Authentication and application endpoints are imp
 - [`src/main/resources/application-dev.properties.example`](src/main/resources/application-dev.properties.example): local Spring `dev` profile template. Copy it to `application-dev.properties` and fill in local values.
 - [`compose.yaml`](compose.yaml): multi-container deployment definition.
 - [`Dockerfile`](Dockerfile): backend container build.
+
+

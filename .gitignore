@@ -8,7 +8,6 @@ application-dev.properties
 !.env.example
 !application-dev.properties.example
 /logs
-/docs
 todo.txt
 /local_dev_util
 /uploads
